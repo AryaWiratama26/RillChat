@@ -1,5 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
+
+    // Google Services
+    alias(libs.plugins.google.gms.google.services)
+
+
 }
 
 android {
@@ -12,6 +17,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+        multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -50,4 +56,14 @@ dependencies {
 
     // Rounded ImageView
     implementation (libs.roundedimageview)
+
+    // Firebase Google
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.firestore)
+
+    // Multidex
+    implementation(libs.multidex)
+
+
+
 }

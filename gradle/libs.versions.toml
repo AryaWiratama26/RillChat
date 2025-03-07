@@ -10,6 +10,10 @@ constraintlayout = "2.1.4"
 sdpAndroid = "1.0.6"
 sspAndroid = "1.0.6"
 roundedimageview = "2.3.0"
+firebaseMessaging = "24.1.0"
+googleGmsGoogleServices = "4.4.2"
+firebaseFirestore = "25.1.2"
+multidex = "2.0.1"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -22,7 +26,11 @@ constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayo
 sdp-android = { module = "com.intuit.sdp:sdp-android", version.ref = "sdpAndroid" }
 ssp-android = {module= "com.intuit.ssp:ssp-android", version.ref = "sspAndroid"}
 roundedimageview = { module = "com.makeramen:roundedimageview", version.ref = "roundedimageview"}
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+multidex = { module = "androidx.multidex:multidex", version = "2.0.1" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 
