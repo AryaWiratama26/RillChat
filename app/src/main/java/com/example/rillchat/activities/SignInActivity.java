@@ -33,5 +33,34 @@ public class SignInActivity extends AppCompatActivity {
     private void setListeners() {
         binding.textCreateNewAccount.setOnClickListener(v ->
                 startActivity(new Intent(getApplicationContext(), SignUpActivity.class)));
+        binding.buttonSignIn.setOnClickListener(v -> {
+            if(isValidSignInDetails()) {
+                signIn();
+            }
+        })
     }
+
+    private void signIn() {
+        
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    private Boolean inValidSignInDetails() {
+        if(binding.inputEmail.getText().toString().trim().isEmpty()) {
+            showToast("Enter Email");
+            return false;
+        }else if(!Patterns.EMAIL_ADDRESS).matcher(binding.inputEmail.getText().toString().matches()) {
+            showToast("Enter valid email");
+            return false;
+        }else if(binding.inputPassword.getText().toString().trim().isEmpty()) {
+            showToast("Enter Password");
+            return false;
+        }else {
+            return true;
+        }
+    }
+
 }
