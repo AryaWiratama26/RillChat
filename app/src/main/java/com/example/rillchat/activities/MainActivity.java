@@ -12,6 +12,8 @@ import com.example.rillchat.R;
 
 public class MainActivity extends AppCompatActivity {
 
+    private AppCompatActivity binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
