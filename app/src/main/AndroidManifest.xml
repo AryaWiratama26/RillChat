@@ -15,6 +15,9 @@
         android:theme="@style/Theme.RillChat"
         tools:targetApi="31">
         <activity
+            android:name=".activities.ChatActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.UsersActivity"
             android:exported="false" />
         <activity
@@ -30,7 +33,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.MainActivity"></activity>
+        <activity android:name=".activities.MainActivity" />
 
         <service
             android:name=".firebase.MessagingService"
