@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.rillchat.databinding.ItemContainerUserBinding;
+import com.example.rillchat.listeners.UserListener;
 import com.example.rillchat.models.User;
 
 import java.util.List;
