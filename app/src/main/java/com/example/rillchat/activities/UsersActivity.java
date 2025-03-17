@@ -1,5 +1,6 @@
 package com.example.rillchat.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -12,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.rillchat.R;
 import com.example.rillchat.adapters.UsersAdapter;
 import com.example.rillchat.databinding.ActivityUsersBinding;
+import com.example.rillchat.listeners.UserListener;
 import com.example.rillchat.models.User;
 import com.example.rillchat.utilities.Constants;
 import com.example.rillchat.utilities.PreferenceManager;
@@ -21,7 +23,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UsersActivity extends AppCompatActivity implements UserListener{
+public class UsersActivity extends AppCompatActivity implements UserListener {
 
     private ActivityUsersBinding binding;
     private PreferenceManager preferenceManager;
