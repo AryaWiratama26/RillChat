@@ -1,4 +1,4 @@
-package com.infinityandroid.rillchat.adapters;
+package com.example.rillchat.adapters;
 
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
@@ -7,9 +7,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.infinityandroid.rillchat.databinding.ItemContainerReceivedMessageBinding;
-import com.infinityandroid.rillchat.databinding.ItemContainerSentMessageBinding;
-import com.infinityandroid.rillchat.models.ChatMessage;
+import com.example.rillchat.databinding.ItemContainerReceivedMessageBinding;
+import com.example.rillchat.databinding.ItemContainerSentMessageBinding;
+import com.example.rillchat.models.ChatMessage;
 
 import java.util.List;
 
