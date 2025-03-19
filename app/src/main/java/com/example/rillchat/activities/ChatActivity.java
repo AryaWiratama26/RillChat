@@ -7,12 +7,10 @@ import android.util.Base64;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.rillchat.R;
 import com.example.rillchat.adapters.ChatAdapter;
 import com.example.rillchat.databinding.ActivityChatBinding;
 import com.example.rillchat.models.ChatMessage;
@@ -35,6 +33,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class ChatActivity extends BaseActivity {
 

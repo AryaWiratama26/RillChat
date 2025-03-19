@@ -1,4 +1,6 @@
-package com.example.rillchat;
+package com.example.rillchat.activities;
+
+import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
