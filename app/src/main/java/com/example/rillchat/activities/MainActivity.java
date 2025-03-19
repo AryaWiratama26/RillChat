@@ -9,12 +9,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.rillchat.R;
 import com.example.rillchat.adapters.RecentConversationAdapter;
 import com.example.rillchat.databinding.ActivityMainBinding;
 import com.example.rillchat.listeners.ConversionListener;
