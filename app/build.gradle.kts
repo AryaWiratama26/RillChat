@@ -1,10 +1,10 @@
+import org.apache.tools.ant.util.JavaEnvUtils.VERSION_11
+
 plugins {
     alias(libs.plugins.android.application)
 
     // Google Services
     alias(libs.plugins.google.gms.google.services)
-
-
 }
 
 android {
@@ -66,8 +66,12 @@ dependencies {
     // Multidex
     implementation(libs.multidex)
 
-    // Retrofit
-    implementation('com.squareup.retrofit2:retrofit:2.9.0')
-    implementation('com.squareup.retrofit2:converter-scalars:2.9.0')
+    // Google Code GSON
+    implementation(libs.gson)
 
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.scalars)
+    implementation(libs.retrofit2.converter.gson)
+    implementation(libs.logging.interceptor)
 }

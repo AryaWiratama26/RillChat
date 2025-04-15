@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
@@ -12,6 +13,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.rillchat.adapters.ChatAdapter;
+import com.example.rillchat.ai.GroqClient;
+import com.example.rillchat.ai.GroqRequest;
+import com.example.rillchat.ai.GroqResponse;
 import com.example.rillchat.databinding.ActivityChatBinding;
 import com.example.rillchat.models.ChatMessage;
 import com.example.rillchat.models.User;
@@ -34,6 +38,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ChatActivity extends BaseActivity {
 
@@ -152,6 +160,7 @@ public class ChatActivity extends BaseActivity {
     };
 
     private void sendMessage() {
+        String userMessage = binding.inputMessage.getText().toString();
         HashMap<String, Object> message = new HashMap<>();
         message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
         message.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
@@ -173,6 +182,8 @@ public class ChatActivity extends BaseActivity {
             addConversion(conversion);
         }
         binding.inputMessage.setText(null);
+
+        getAIResponse(userMessage);
     }
 
     private void listenMessages() {
@@ -202,6 +213,7 @@ public class ChatActivity extends BaseActivity {
                     ).intValue();
                     isReceiverAvailable = availability == 1;
                 }
+                receiverUser.token = value.getString(Constants.KEY_FCM_TOKEN);
             }
             if(isReceiverAvailable) {
                 binding.textAvailability.setVisibility(View.VISIBLE);
@@ -245,6 +257,60 @@ public class ChatActivity extends BaseActivity {
             checkForConversion();
         }
     };
+
+
+    private String getCurrentTime() {
+        return new SimpleDateFormat("MMMM dd, yyyy - hh:mm a", Locale.getDefault()).format(new Date());
+    }
+
+
+    private void displayBotMessage(String message) {
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setMessage(message);
+        chatMessage.setDateTime(getCurrentTime());
+        chatMessage.setFromAI(true); //
+
+        chatMessages.add(chatMessage);
+        chatAdapter.notifyItemInserted(chatMessages.size() - 1);
+        binding.chatRecyclerView.smoothScrollToPosition(chatMessages.size() - 1);
+    }
+
+    private void getAIResponse(String userMessage) {
+        List<GroqRequest.Message> messages = new ArrayList<>();
+        messages.add(new GroqRequest.Message("user", userMessage));
+
+        GroqRequest request = new GroqRequest();
+        request.messages = messages;
+
+        GroqClient.getService().chat(request).enqueue(new Callback<GroqResponse>() {
+            @Override
+            public void onResponse(Call<GroqResponse> call, Response<GroqResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String responseText = response.body().choices.get(0).message.content;
+
+                    PreferenceManager preferenceManager = new PreferenceManager(getApplicationContext());
+                    String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
+
+                    ChatMessage aiMessage = new ChatMessage();
+                    aiMessage.setMessage(responseText);
+                    aiMessage.setDateTime(getReadableDateTime(new Date()));
+                    aiMessage.setFromAI(true);
+                    aiMessage.senderId = Constants.AI_ID; // ID AI
+                    aiMessage.receiverId = currentUserId; // user ID kamu
+
+                    chatMessages.add(aiMessage);
+                    chatAdapter.notifyItemInserted(chatMessages.size() - 1);
+                    binding.chatRecyclerView.smoothScrollToPosition(chatMessages.size() - 1);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GroqResponse> call, Throwable t) {
+                Log.e("GroqAI", "Error: " + t.getMessage());
+            }
+        });
+    }
+
 
 
 

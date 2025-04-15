@@ -10,7 +10,7 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_rillchat"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_rillchat"
+        android:roundIcon="@mipmap/ic_rillchat_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RillChat"
         tools:targetApi="31">
