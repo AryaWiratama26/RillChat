@@ -10,7 +10,7 @@
     android:padding="@dimen/_24sdp"
     android:scrollbars="none"
     tools:context=".activities.SignInActivity"
-    android:background="@color/primary_med">
+    android:background="@color/primary_dark">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_40sdp"
             android:text="@string/welcome_back"
-            android:textColor="@color/primary_super_light"
+            android:textColor="@color/primary_white"
             android:textSize="@dimen/_18ssp"
             android:textStyle="bold"/>
 
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_4sdp"
             android:text="@string/login_to_continue"
-            android:textColor="@color/primary_super_light"
+            android:textColor="@color/primary_white"
             android:textSize="@dimen/_12ssp"
             android:textStyle="bold"/>
 
@@ -50,7 +50,7 @@
             android:inputType="textEmailAddress"
             android:paddingStart="@dimen/_16sdp"
             android:paddingEnd="@dimen/_16sdp"
-            android:textColor="@color/primary_med"
+            android:textColor="@color/primary_dark"
             android:textSize="@dimen/_13ssp" />
 
         <EditText
@@ -77,16 +77,17 @@
             android:animateLayoutChanges="true">
 
             <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonSignIn"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_50sdp"
-            android:layout_marginLeft="@dimen/_28ssp"
-            android:layout_marginRight="@dimen/_28ssp"
-            android:text="@string/sign_in"
-            android:textColor="@color/primary_white"
-            android:textSize="@dimen/_13ssp"
-            android:textStyle="bold"
-            app:cornerRadius="@dimen/_8sdp"/>
+                android:id="@+id/buttonSignIn"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_50sdp"
+                android:layout_marginLeft="@dimen/_28ssp"
+                android:layout_marginRight="@dimen/_28ssp"
+                android:text="@string/sign_in"
+                android:textColor="@color/primary_white"
+                android:textSize="@dimen/_13ssp"
+                android:textStyle="bold"
+                app:cornerRadius="@dimen/_8sdp"
+                app:backgroundTint="@color/primary_med"/>
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -106,7 +107,7 @@
             android:layout_marginTop="@dimen/_30sdp"
             android:text="@string/create_new_account"
             android:textSize="@dimen/_13ssp"
-            android:textColor="@color/primary_super_light"
+            android:textColor="@color/primary_white"
             android:textStyle="italic|bold"/>
 
 

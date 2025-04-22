@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary_dark">#091D36</color>
-    <color name="primary_light">#5E83BA</color>
-    <color name="primary_med">#3A4E7A</color>
-    <color name="primary_super_light">#C2D3E9</color>
+    <color name="primary_dark">#3D8D7A</color>
+    <color name="primary_light">#FBFFE4</color>
+    <color name="primary_med">#B3D8A8</color>
+    <color name="primary_super_light">#A3D1C6</color>
     <color name="primary_white">#F1F1F0</color>
     <color name="error">#B00020</color>
     <color name="input_background">#ECECEC</color>

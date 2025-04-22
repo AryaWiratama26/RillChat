@@ -13,12 +13,20 @@ public class ChatMessage {
     public boolean isFromAI() {
         return isFromAI;
     }
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
+        this.isFromAI = "AI_BOT".equals(senderId); // auto-detect AI
+    }
     public void setFromAI(boolean fromAI) {
         isFromAI = fromAI;
     }
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
     }
 
     public void setDateTime(String dateTime) {
