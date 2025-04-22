@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
@@ -13,9 +12,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.rillchat.adapters.ChatAdapter;
-import com.example.rillchat.ai.GroqClient;
-import com.example.rillchat.ai.GroqRequest;
-import com.example.rillchat.ai.GroqResponse;
 import com.example.rillchat.databinding.ActivityChatBinding;
 import com.example.rillchat.models.ChatMessage;
 import com.example.rillchat.models.User;
@@ -39,9 +35,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class ChatActivity extends BaseActivity {
 
@@ -70,7 +63,18 @@ public class ChatActivity extends BaseActivity {
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            binding.chatRecyclerView.setPadding(
+                    binding.chatRecyclerView.getPaddingLeft(),
+                    0,
+                    binding.chatRecyclerView.getPaddingRight(),
+                    systemBars.bottom
+            );
+            binding.inputMessage.setPadding(
+                    binding.inputMessage.getPaddingLeft(),
+                    binding.inputMessage.getPaddingTop(),
+                    binding.inputMessage.getPaddingRight(),
+                    systemBars.bottom
+            );
             return insets;
         });
     }
@@ -160,29 +164,33 @@ public class ChatActivity extends BaseActivity {
     };
 
     private void sendMessage() {
-        String userMessage = binding.inputMessage.getText().toString();
+        String userMessage = binding.inputMessage.getText().toString().trim();
+        if (userMessage.isEmpty()) {
+            return;
+        }
         HashMap<String, Object> message = new HashMap<>();
         message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
         message.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
-        message.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
+        message.put(Constants.KEY_MESSAGE, userMessage);
         message.put(Constants.KEY_TIMESTAMP, new Date());
+
         database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
+
         if(conversionId != null) {
-            updateConversion(binding.inputMessage.getText().toString());
-        }else {
+            updateConversion(userMessage);
+        } else {
             HashMap<String, Object> conversion = new HashMap<>();
             conversion.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
             conversion.put(Constants.KEY_SENDER_NAME, preferenceManager.getString(Constants.KEY_NAME));
             conversion.put(Constants.KEY_SENDER_IMAGE, preferenceManager.getString(Constants.KEY_IMAGE));
             conversion.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
-            conversion.put(Constants.KEY_RECEIVER_NAME,receiverUser.name);
-            conversion.put(Constants.KEY_RECEIVER_IMAGE,receiverUser.image);
-            conversion.put(Constants.KEY_LAST_MESSAGE, binding.inputMessage.getText().toString());
+            conversion.put(Constants.KEY_RECEIVER_NAME, receiverUser.name);
+            conversion.put(Constants.KEY_RECEIVER_IMAGE, receiverUser.image);
+            conversion.put(Constants.KEY_LAST_MESSAGE, userMessage);
             conversion.put(Constants.KEY_TIMESTAMP, new Date());
             addConversion(conversion);
         }
         binding.inputMessage.setText(null);
-
     }
 
     private void listenMessages() {

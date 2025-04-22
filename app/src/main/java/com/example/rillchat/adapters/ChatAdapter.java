@@ -1,6 +1,7 @@
 package com.example.rillchat.adapters;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -40,6 +41,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     false
             );
             return new SentMessageViewHolder(binding);
+        } else if (viewType == VIEW_TYPE_AI) {
+            ItemContainerReceivedMessageAiBinding binding = ItemContainerReceivedMessageAiBinding.inflate(
+                    LayoutInflater.from(parent.getContext()),
+                    parent,
+                    false
+            );
+            return new AIMessageViewHolder(binding);
         } else {
             ItemContainerReceivedMessageBinding binding = ItemContainerReceivedMessageBinding.inflate(
                     LayoutInflater.from(parent.getContext()),
@@ -50,14 +58,19 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        ChatMessage message = chatMessages.get(position);
         if (getItemViewType(position) == VIEW_TYPE_SENT) {
-            ((SentMessageViewHolder) holder).setData(chatMessages.get(position));
+            ((SentMessageViewHolder) holder).setData(message);
+        } else if (getItemViewType(position) == VIEW_TYPE_AI) {
+            ((AIMessageViewHolder) holder).setData(message);
         } else {
-            ((ReceivedMessageViewHolder) holder).setData(chatMessages.get(position), receiverProfileImage);
+            ((ReceivedMessageViewHolder) holder).setData(message, receiverProfileImage);
         }
     }
+
 
     @Override
     public int getItemCount() {
@@ -67,14 +80,16 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public int getItemViewType(int position) {
         ChatMessage message = chatMessages.get(position);
+        Log.d("ChatAdapter", "senderId: " + senderId + ", message.senderId: " + message.senderId + ", isFromAI: " + message.isFromAI());
         if (message.isFromAI()) {
-            return 3;
+            return VIEW_TYPE_AI;
         } else if (senderId != null && senderId.equals(message.senderId)) {
             return VIEW_TYPE_SENT;
         } else {
             return VIEW_TYPE_RECEIVED;
         }
     }
+
 
 
     static class SentMessageViewHolder extends RecyclerView.ViewHolder {
@@ -111,14 +126,15 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         private final ItemContainerReceivedMessageAiBinding binding;
 
-        AIMessageViewHolder(ItemContainerReceivedMessageAiBinding itemContainerReceivedMessageAiBinding) {
-            super(itemContainerReceivedMessageAiBinding.getRoot());
-            this.binding = itemContainerReceivedMessageAiBinding;
+        AIMessageViewHolder(ItemContainerReceivedMessageAiBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
 
         void setData(ChatMessage chatMessage) {
             binding.textMessage.setText(chatMessage.message);
             binding.textDateTime.setText(chatMessage.dateTime);
+            // Kamu bisa set drawable AI profile di XML langsung (src), atau di sini kalau bitmap
         }
     }
 }

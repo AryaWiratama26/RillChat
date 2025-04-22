@@ -8,9 +8,9 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_rillchat"
+        android:icon="@mipmap/ic_rillchat_fixed"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_rillchat_round"
+        android:roundIcon="@mipmap/ic_rillchat_fixed_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RillChat"
         tools:targetApi="31">
@@ -18,7 +18,8 @@
             android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".activities.ChatActivity"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false"/>
         <activity
             android:name=".activities.UsersActivity" />
         <activity

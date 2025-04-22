@@ -30,7 +30,7 @@
         android:paddingEnd="@dimen/_12sdp"
         android:paddingBottom="@dimen/_8sdp"
         app:layout_constraintWidth_max="wrap"
-        android:textColor="@color/primary_white"
+        android:textColor="@color/received_message_background"
         android:textSize="@dimen/_13ssp"
         app:layout_constraintStart_toEndOf="@id/imageProfile"
         app:layout_constraintTop_toTopOf="parent"
@@ -41,7 +41,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_4sdp"
-        android:textColor="@color/primary_light"
+        android:textColor="@color/received_message_background"
         android:textSize="@dimen/_8ssp"
         app:layout_constraintStart_toStartOf="@id/textMessage"
         app:layout_constraintTop_toBottomOf="@id/textMessage"/>
