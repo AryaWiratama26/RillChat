@@ -13,6 +13,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.rillchat.R;
 import com.example.rillchat.adapters.RecentConversationAdapter;
 import com.example.rillchat.databinding.ActivityMainBinding;
 import com.example.rillchat.listeners.ConversionListener;
@@ -71,6 +72,10 @@ public class MainActivity extends BaseActivity implements ConversionListener {
         binding.imageSignOut.setOnClickListener(v -> signOut());
         binding.fabNewChat.setOnClickListener(v ->
                 startActivity(new Intent(getApplicationContext(), UsersActivity.class)));
+        binding.fabNewAIChat.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AIChatActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void loadUsersDetails() {

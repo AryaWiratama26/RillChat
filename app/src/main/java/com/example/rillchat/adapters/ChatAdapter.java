@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.rillchat.databinding.ItemContainerReceivedMessageBinding;
 import com.example.rillchat.databinding.ItemContainerSentMessageBinding;
+import com.example.rillchat.databinding.ItemContainerReceivedMessageAiBinding;
 import com.example.rillchat.models.ChatMessage;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public static final int VIEW_TYPE_SENT = 1;
     public static final int VIEW_TYPE_RECEIVED = 2;
+    public static final int VIEW_TYPE_AI = 3;
 
     public ChatAdapter(List<ChatMessage> chatMessages, Bitmap receiverProfileImage, String senderId) {
         this.chatMessages = chatMessages;
@@ -65,12 +67,15 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public int getItemViewType(int position) {
         ChatMessage message = chatMessages.get(position);
-        if (message != null && senderId != null && senderId.equals(message.senderId)) {
+        if (message.isFromAI()) {
+            return 3;
+        } else if (senderId != null && senderId.equals(message.senderId)) {
             return VIEW_TYPE_SENT;
         } else {
             return VIEW_TYPE_RECEIVED;
         }
     }
+
 
     static class SentMessageViewHolder extends RecyclerView.ViewHolder {
 
@@ -100,6 +105,20 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             binding.textMessage.setText(chatMessage.message);
             binding.textDateTime.setText(chatMessage.dateTime);
             binding.imageProfile.setImageBitmap(receiverProfileImage);
+        }
+    }
+    static class AIMessageViewHolder extends RecyclerView.ViewHolder {
+
+        private final ItemContainerReceivedMessageAiBinding binding;
+
+        AIMessageViewHolder(ItemContainerReceivedMessageAiBinding itemContainerReceivedMessageAiBinding) {
+            super(itemContainerReceivedMessageAiBinding.getRoot());
+            this.binding = itemContainerReceivedMessageAiBinding;
+        }
+
+        void setData(ChatMessage chatMessage) {
+            binding.textMessage.setText(chatMessage.message);
+            binding.textDateTime.setText(chatMessage.dateTime);
         }
     }
 }

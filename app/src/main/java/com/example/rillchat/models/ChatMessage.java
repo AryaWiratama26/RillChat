@@ -2,6 +2,7 @@ package com.example.rillchat.models;
 
 import java.util.Date;
 
+
 public class ChatMessage {
     public String senderId, receiverId, message, dateTime;
     public Date dateObject;
@@ -23,7 +24,5 @@ public class ChatMessage {
     public void setDateTime(String dateTime) {
         this.dateTime = dateTime;
     }
-
-
-
+    
 }
