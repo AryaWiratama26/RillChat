@@ -183,7 +183,6 @@ public class ChatActivity extends BaseActivity {
         }
         binding.inputMessage.setText(null);
 
-        getAIResponse(userMessage);
     }
 
     private void listenMessages() {
@@ -259,57 +258,10 @@ public class ChatActivity extends BaseActivity {
     };
 
 
-    private String getCurrentTime() {
-        return new SimpleDateFormat("MMMM dd, yyyy - hh:mm a", Locale.getDefault()).format(new Date());
-    }
 
 
-    private void displayBotMessage(String message) {
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setMessage(message);
-        chatMessage.setDateTime(getCurrentTime());
-        chatMessage.setFromAI(true); //
 
-        chatMessages.add(chatMessage);
-        chatAdapter.notifyItemInserted(chatMessages.size() - 1);
-        binding.chatRecyclerView.smoothScrollToPosition(chatMessages.size() - 1);
-    }
 
-    private void getAIResponse(String userMessage) {
-        List<GroqRequest.Message> messages = new ArrayList<>();
-        messages.add(new GroqRequest.Message("user", userMessage));
-
-        GroqRequest request = new GroqRequest();
-        request.messages = messages;
-
-        GroqClient.getService().chat(request).enqueue(new Callback<GroqResponse>() {
-            @Override
-            public void onResponse(Call<GroqResponse> call, Response<GroqResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    String responseText = response.body().choices.get(0).message.content;
-
-                    PreferenceManager preferenceManager = new PreferenceManager(getApplicationContext());
-                    String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
-
-                    ChatMessage aiMessage = new ChatMessage();
-                    aiMessage.setMessage(responseText);
-                    aiMessage.setDateTime(getReadableDateTime(new Date()));
-                    aiMessage.setFromAI(true);
-                    aiMessage.senderId = Constants.AI_ID; // ID AI
-                    aiMessage.receiverId = currentUserId; // user ID kamu
-
-                    chatMessages.add(aiMessage);
-                    chatAdapter.notifyItemInserted(chatMessages.size() - 1);
-                    binding.chatRecyclerView.smoothScrollToPosition(chatMessages.size() - 1);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<GroqResponse> call, Throwable t) {
-                Log.e("GroqAI", "Error: " + t.getMessage());
-            }
-        });
-    }
 
 
 
