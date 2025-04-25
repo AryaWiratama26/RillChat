@@ -53,11 +53,11 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 
     // Scalabe Size Unit (Support for different screen sizes)
-    implementation (libs.sdp.android)
-    implementation (libs.ssp.android)
+    implementation(libs.sdp.android)
+    implementation(libs.ssp.android)
 
     // Rounded ImageView
-    implementation (libs.roundedimageview)
+    implementation(libs.roundedimageview)
 
     // Firebase Google
     implementation(libs.firebase.messaging)
@@ -74,4 +74,17 @@ dependencies {
     implementation(libs.converter.scalars)
     implementation(libs.retrofit2.converter.gson)
     implementation(libs.logging.interceptor)
+
+    // Core Markwon (Markdown Chat)
+    implementation(libs.core)
+
+    // (Optional) Plugin tambahan
+    implementation(libs.markwon.html)
+    implementation(libs.markwon.ext.strikethrough)
+    implementation(libs.markwon.ext.tasklist)
+    implementation(libs.markwon.ext.tables)
+
+    // Glide (Rendering Image)
+    implementation (libs.glide)
+    annotationProcessor (libs.glide.compiler)
 }
