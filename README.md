@@ -27,6 +27,8 @@ _Aplikasi Chat Mahasiswa dengan Asisten AI_
 **RillChat** adalah aplikasi mobile chatting yang dirancang khusus untuk civitas akademika **Universitas Pelita Bangsa**.  
 Dengan integrasi asisten AI (LLaMA), pengguna dapat berkomunikasi lebih cerdas dan cepat — baik dengan teman kuliah maupun untuk bertanya seputar informasi kampus.
 
+[Kunjungi Website Rillchat untuk pengalaman yang keren](https://rillchat-apps.vercel.app/)
+
 ---
 
 ## ✨ Fitur Utama
@@ -65,7 +67,12 @@ Dengan integrasi asisten AI (LLaMA), pengguna dapat berkomunikasi lebih cerdas d
     <img src="/ss/StoryBoard-1.png" alt="RIllChat StoryBoard">
 <p>
 
-🎨 [Lihat StoryBoard Lengkap di Figma](https://www.figma.com/design/6YdAhqK75cbOjaqPd6lkv5/UI-RILLCHAT?node-id=1-4)
+## 📖 UI 
+<p align="center">
+    <img src="/ss/ui-rillchat.png" alt="RIllChat uI">
+<p>
+
+🎨 [Lihat Lengkap di Figma](https://www.figma.com/design/6YdAhqK75cbOjaqPd6lkv5/UI-RILLCHAT?node-id=1-4)
 
 ---
 
