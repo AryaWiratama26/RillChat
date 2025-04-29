@@ -47,7 +47,7 @@ Dengan integrasi asisten AI (LLaMA), pengguna dapat berkomunikasi lebih cerdas d
 |----------------|-------------------------------------|
 | Backend        | Firebase Authentication & Database |
 | AI Assistant   | LLaMA (Meta AI Model)              |
-| Mobile App     | Android Studio (Java/Kotlin)       |
+| Mobile App     | Android Studio (Java and Kotlin Gradle) |
 | UI/UX Design   | Figma                              |
 
 ---
@@ -78,11 +78,11 @@ Dengan integrasi asisten AI (LLaMA), pengguna dapat berkomunikasi lebih cerdas d
 
 ## 👨‍💻 Tim Pengembang
 
-| Nama                         | NIM           |
-|------------------------------|---------------|
-| Arya Wiratama                | 312310224     |
-| Farel Aryaduta Daniswara     | 312310810     |
-| Andrian Lusmana              | 312310199     |
-| Yudi Gunawan                 | 312310179     |
+| Nama                         | NIM           | Role |
+|------------------------------|---------------|----- |
+| Arya Wiratama                | 312310224     | Backend & Frontend |
+| Farel Aryaduta Daniswara     | 312310810     | Frontend & Backend | 
+| Andrian Lusmana              | 312310199     | RillChat Designer |
+| Yudi Gunawan                 | 312310179     | Project Manager |
 
 ---
