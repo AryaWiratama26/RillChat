@@ -4,8 +4,11 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -22,12 +25,12 @@ import java.util.List;
 import io.noties.markwon.Markwon;
 
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private Context context;
 
+    private final Context context;
     private final List<ChatMessage> chatMessages;
     private final Bitmap receiverProfileImage;
     private final String senderId;
-    private final Markwon markwon; // Keep markwon as a field
+    private final Markwon markwon;
 
     public static final int VIEW_TYPE_SENT = 1;
     public static final int VIEW_TYPE_RECEIVED = 2;
@@ -38,36 +41,23 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.receiverProfileImage = receiverProfileImage;
         this.senderId = senderId;
         this.context = context;
-        this.markwon = Markwon.create(context); // Initialize markwon here
+        this.markwon = Markwon.create(context);
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_SENT) {
-            ItemContainerSentMessageBinding binding = ItemContainerSentMessageBinding.inflate(
-                    LayoutInflater.from(parent.getContext()),
-                    parent,
-                    false
-            );
-            return new SentMessageViewHolder(binding, markwon); // Pass markwon to the ViewHolder
+            return new SentMessageViewHolder(ItemContainerSentMessageBinding.inflate(
+                    LayoutInflater.from(parent.getContext()), parent, false), markwon);
         } else if (viewType == VIEW_TYPE_AI) {
-            ItemContainerReceivedMessageAiBinding binding = ItemContainerReceivedMessageAiBinding.inflate(
-                    LayoutInflater.from(parent.getContext()),
-                    parent,
-                    false
-            );
-            return new AIMessageViewHolder(binding, markwon); // Pass markwon to the ViewHolder
+            return new AIMessageViewHolder(ItemContainerReceivedMessageAiBinding.inflate(
+                    LayoutInflater.from(parent.getContext()), parent, false), markwon);
         } else {
-            ItemContainerReceivedMessageBinding binding = ItemContainerReceivedMessageBinding.inflate(
-                    LayoutInflater.from(parent.getContext()),
-                    parent,
-                    false
-            );
-            return new ReceivedMessageViewHolder(binding, markwon); // Pass markwon to the ViewHolder
+            return new ReceivedMessageViewHolder(ItemContainerReceivedMessageBinding.inflate(
+                    LayoutInflater.from(parent.getContext()), parent, false), markwon);
         }
     }
-
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
@@ -80,7 +70,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ((ReceivedMessageViewHolder) holder).setData(message, receiverProfileImage);
         }
     }
-
 
     @Override
     public int getItemCount() {
@@ -100,81 +89,100 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-
+    private static boolean isBase64Image(String text) {
+        return text != null && text.length() > 100 && text.matches("^[A-Za-z0-9+/=\\s]+$");
+    }
 
     static class SentMessageViewHolder extends RecyclerView.ViewHolder {
-
         private final ItemContainerSentMessageBinding binding;
-        private final Markwon markwon; // Keep markwon as a field
+        private final Markwon markwon;
 
-        SentMessageViewHolder(ItemContainerSentMessageBinding itemContainerSentMessageBinding, Markwon markwon) {
-            super(itemContainerSentMessageBinding.getRoot());
-            binding = itemContainerSentMessageBinding;
-            this.markwon = markwon; // Initialize markwon here
+        SentMessageViewHolder(ItemContainerSentMessageBinding binding, Markwon markwon) {
+            super(binding.getRoot());
+            this.binding = binding;
+            this.markwon = markwon;
         }
 
         void setData(ChatMessage chatMessage) {
-            markwon.setMarkdown(binding.textMessage, chatMessage.message);
-            binding.textDateTime.setText(chatMessage.dateTime);
+            if (isBase64Image(chatMessage.message)) {
+                byte[] decodedBytes = Base64.decode(chatMessage.message, Base64.DEFAULT);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                binding.imageMessage.setVisibility(View.VISIBLE);
+                binding.textMessage.setVisibility(View.GONE);
+                binding.imageMessage.setImageBitmap(bitmap);
 
+                binding.imageMessage.getLayoutParams().width = 600;
+                binding.imageMessage.requestLayout();
+            } else {
+                binding.imageMessage.setVisibility(View.GONE);
+                binding.textMessage.setVisibility(View.VISIBLE);
+                markwon.setMarkdown(binding.textMessage, chatMessage.message);
+            }
+
+            binding.textDateTime.setText(chatMessage.dateTime);
             binding.textMessage.setOnLongClickListener(v -> {
-                ClipboardManager clipboard = (ClipboardManager) v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("Copied Text", chatMessage.message);
-                clipboard.setPrimaryClip(clip);
-                Toast.makeText(v.getContext(), "Teks disalin ke clipboard", Toast.LENGTH_SHORT).show();
+                copyToClipboard(v.getContext(), chatMessage.message);
                 return true;
             });
         }
     }
 
     static class ReceivedMessageViewHolder extends RecyclerView.ViewHolder {
-
         private final ItemContainerReceivedMessageBinding binding;
-        private final Markwon markwon; // Keep markwon as a field
+        private final Markwon markwon;
 
-        ReceivedMessageViewHolder(ItemContainerReceivedMessageBinding itemContainerReceivedMessageBinding, Markwon markwon) {
-            super(itemContainerReceivedMessageBinding.getRoot());
-            binding = itemContainerReceivedMessageBinding;
-            this.markwon = markwon; // Initialize markwon here
+        ReceivedMessageViewHolder(ItemContainerReceivedMessageBinding binding, Markwon markwon) {
+            super(binding.getRoot());
+            this.binding = binding;
+            this.markwon = markwon;
         }
 
         void setData(ChatMessage chatMessage, Bitmap receiverProfileImage) {
-            markwon.setMarkdown(binding.textMessage, chatMessage.message);
+            if (isBase64Image(chatMessage.message)) {
+                byte[] decodedBytes = Base64.decode(chatMessage.message, Base64.DEFAULT);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                binding.imageMessage.setVisibility(View.VISIBLE);
+                binding.textMessage.setVisibility(View.GONE);
+                binding.imageMessage.setImageBitmap(bitmap);
+            } else {
+                binding.imageMessage.setVisibility(View.GONE);
+                binding.textMessage.setVisibility(View.VISIBLE);
+                markwon.setMarkdown(binding.textMessage, chatMessage.message);
+            }
+
             binding.textDateTime.setText(chatMessage.dateTime);
             binding.imageProfile.setImageBitmap(receiverProfileImage);
-
             binding.textMessage.setOnLongClickListener(v -> {
-                ClipboardManager clipboard = (ClipboardManager) v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("Copied Text", chatMessage.message);
-                clipboard.setPrimaryClip(clip);
-                Toast.makeText(v.getContext(), "Teks disalin ke clipboard", Toast.LENGTH_SHORT).show();
+                copyToClipboard(v.getContext(), chatMessage.message);
                 return true;
             });
         }
     }
 
     static class AIMessageViewHolder extends RecyclerView.ViewHolder {
-
         private final ItemContainerReceivedMessageAiBinding binding;
-        private final Markwon markwon; // Keep markwon as a field
+        private final Markwon markwon;
 
         AIMessageViewHolder(ItemContainerReceivedMessageAiBinding binding, Markwon markwon) {
             super(binding.getRoot());
             this.binding = binding;
-            this.markwon = markwon; // Initialize markwon here
+            this.markwon = markwon;
         }
 
         void setData(ChatMessage chatMessage) {
             markwon.setMarkdown(binding.textMessage, chatMessage.message);
             binding.textDateTime.setText(chatMessage.dateTime);
-
             binding.textMessage.setOnLongClickListener(v -> {
-                ClipboardManager clipboard = (ClipboardManager) v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("Copied Text", chatMessage.message);
-                clipboard.setPrimaryClip(clip);
-                Toast.makeText(v.getContext(), "Teks disalin ke clipboard", Toast.LENGTH_SHORT).show();
+                copyToClipboard(v.getContext(), chatMessage.message);
                 return true;
             });
         }
+    }
+
+    private static void copyToClipboard(Context context, String text) {
+        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("Copied Text", text);
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(context, "Teks disalin ke clipboard", Toast.LENGTH_SHORT).show();
     }
 }
