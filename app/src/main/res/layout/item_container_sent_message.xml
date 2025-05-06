@@ -27,6 +27,7 @@
         android:layout_width="400dp"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
         android:visibility="gone"
         android:scaleType="centerCrop"
         android:layout_marginTop="@dimen/_4sdp"

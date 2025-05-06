@@ -111,8 +111,14 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 binding.textMessage.setVisibility(View.GONE);
                 binding.imageMessage.setImageBitmap(bitmap);
 
-                binding.imageMessage.getLayoutParams().width = 600;
-                binding.imageMessage.requestLayout();
+                ViewGroup.LayoutParams layoutParams = binding.imageMessage.getLayoutParams();
+                layoutParams.width = 600;
+                layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                binding.imageMessage.setLayoutParams(layoutParams);
+
+
+                // binding.imageMessage.getLayoutParams().width = 600;
+                // binding.imageMessage.requestLayout();
             } else {
                 binding.imageMessage.setVisibility(View.GONE);
                 binding.textMessage.setVisibility(View.VISIBLE);
