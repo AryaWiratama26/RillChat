@@ -31,7 +31,5 @@ public class Constants {
     public static final String AI_IMAGE_BASE64 = "base64_encoded_image_string";
     public static final String REMOTE_MSG_AUTHORIZATION = "Authorization";
     public static final String REMOTE_MSG_CONTENT_TYPE = "Content-Type";
-    public static final String KEY_GROQ_API_KEY = "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";
-    public static final String KEY_OPENAI_API_KEY = "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";
     public static HashMap<String, String> remoteMsgHeaders = null;
 }
