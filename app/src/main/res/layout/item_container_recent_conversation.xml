@@ -15,7 +15,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:riv_oval="true"/>
-    
+
     <View
         android:id="@+id/ViewSupporter"
         android:layout_width="1dp"
@@ -37,7 +37,7 @@
         app:layout_constraintBottom_toTopOf="@+id/ViewSupporter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/imageProfile"/>
-    
+
     <TextView
         android:id="@+id/textRecentMessage"
         android:layout_width="0dp"
@@ -46,10 +46,23 @@
         android:layout_marginEnd="@dimen/_8sdp"
         android:ellipsize="end"
         android:maxLines="1"
+        android:drawablePadding="@dimen/_4sdp"
         android:textColor="@color/received_message_background"
         android:textSize="@dimen/_12ssp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/imageProfile"
         app:layout_constraintTop_toBottomOf="@id/ViewSupporter"/>
+
+    <ImageView
+        android:id="@+id/imageMessagePreview"
+        android:layout_width="@dimen/_16sdp"
+        android:layout_height="@dimen/_16sdp"
+        android:src="@drawable/ic_image"
+        android:visibility="gone"
+        android:layout_marginEnd="@dimen/_4sdp"
+        app:layout_constraintEnd_toStartOf="@id/textRecentMessage"
+        app:layout_constraintTop_toTopOf="@id/textRecentMessage"
+        app:layout_constraintBottom_toBottomOf="@id/textRecentMessage"
+        app:tint="@color/received_message_background"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

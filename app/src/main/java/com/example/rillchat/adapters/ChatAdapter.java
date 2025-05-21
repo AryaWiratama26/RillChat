@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.rillchat.activities.ChatActivity;
 import com.example.rillchat.databinding.ItemContainerReceivedMessageBinding;
 import com.example.rillchat.databinding.ItemContainerSentMessageBinding;
 import com.example.rillchat.databinding.ItemContainerReceivedMessageAiBinding;
@@ -111,10 +112,26 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 binding.textMessage.setVisibility(View.GONE);
                 binding.imageMessage.setImageBitmap(bitmap);
 
+                // Show caption if exists
+                if (chatMessage.caption != null && !chatMessage.caption.isEmpty()) {
+                    binding.textCaption.setVisibility(View.VISIBLE);
+                    binding.textCaption.setText(chatMessage.caption);
+                } else {
+                    binding.textCaption.setVisibility(View.GONE);
+                }
+
                 binding.imageMessage.getLayoutParams().width = 600;
                 binding.imageMessage.requestLayout();
+
+                // Add click listener for image
+                binding.imageMessage.setOnClickListener(v -> {
+                    if (v.getContext() instanceof ChatActivity) {
+                        ((ChatActivity) v.getContext()).launchImageViewer(chatMessage.message, chatMessage.caption);
+                    }
+                });
             } else {
                 binding.imageMessage.setVisibility(View.GONE);
+                binding.textCaption.setVisibility(View.GONE);
                 binding.textMessage.setVisibility(View.VISIBLE);
                 markwon.setMarkdown(binding.textMessage, chatMessage.message);
             }
@@ -144,8 +161,24 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 binding.imageMessage.setVisibility(View.VISIBLE);
                 binding.textMessage.setVisibility(View.GONE);
                 binding.imageMessage.setImageBitmap(bitmap);
+
+                // Show caption if exists
+                if (chatMessage.caption != null && !chatMessage.caption.isEmpty()) {
+                    binding.textCaption.setVisibility(View.VISIBLE);
+                    binding.textCaption.setText(chatMessage.caption);
+                } else {
+                    binding.textCaption.setVisibility(View.GONE);
+                }
+
+                // Add click listener for image
+                binding.imageMessage.setOnClickListener(v -> {
+                    if (v.getContext() instanceof ChatActivity) {
+                        ((ChatActivity) v.getContext()).launchImageViewer(chatMessage.message, chatMessage.caption);
+                    }
+                });
             } else {
                 binding.imageMessage.setVisibility(View.GONE);
+                binding.textCaption.setVisibility(View.GONE);
                 binding.textMessage.setVisibility(View.VISIBLE);
                 markwon.setMarkdown(binding.textMessage, chatMessage.message);
             }

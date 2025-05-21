@@ -3,15 +3,19 @@ package com.example.rillchat.activities;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.example.rillchat.R;
 import com.example.rillchat.adapters.RecentConversationAdapter;
@@ -21,6 +25,7 @@ import com.example.rillchat.models.ChatMessage;
 import com.example.rillchat.models.User;
 import com.example.rillchat.utilities.Constants;
 import com.example.rillchat.utilities.PreferenceManager;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
@@ -46,19 +51,65 @@ public class MainActivity extends BaseActivity implements ConversionListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
-        EdgeToEdge.enable(this);
+        
+        // First set content view
         setContentView(binding.getRoot());
+        
+        // Configure EdgeToEdge with system bars visible
+        EdgeToEdge.enable(this);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
+        
+        // Apply status bar color AFTER EdgeToEdge and setContentView
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark, getTheme()));
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark));
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        }
+        
+        // Set up immersive mode
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        
         preferenceManager = new PreferenceManager(getApplicationContext());
         init();
         loadUsersDetails();
         getToken();
         setListeners();
         listenConversations();
+        setupBottomNavigation();
+            
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             return insets;
         });
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            // Re-apply immersive mode when focus is regained
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                
+            // Reapply status bar color
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark, getTheme()));
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark));
+            }
+        }
     }
 
     private void init() {
@@ -66,6 +117,27 @@ public class MainActivity extends BaseActivity implements ConversionListener {
         conversationAdapter = new RecentConversationAdapter(conversations, this);
         binding.conversationRecyclerView.setAdapter(conversationAdapter);
         database = FirebaseFirestore.getInstance();
+    }
+
+    private void setupBottomNavigation() {
+        // Set Chats as the default selected tab
+        binding.bottomNavigation.setSelectedItemId(R.id.navigation_chats);
+        
+        // Set up click listener for bottom navigation
+        binding.bottomNavigation.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.navigation_chats) {
+                return true;
+            } else if (itemId == R.id.navigation_announce) {
+                startActivity(new Intent(MainActivity.this, AnnouncementActivity.class));
+                return false;
+            } else if (itemId == R.id.navigation_settings) {
+                // Settings feature not implemented yet
+                Toast.makeText(getApplicationContext(), "Settings feature coming soon!", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            return false;
+        });
     }
 
     private void setListeners() {
@@ -76,10 +148,15 @@ public class MainActivity extends BaseActivity implements ConversionListener {
             Intent intent = new Intent(MainActivity.this, AIChatActivity.class);
             startActivity(intent);
         });
+        
+        // Set up search bar
+        binding.searchCardView.setOnClickListener(v -> {
+            showToast("Search feature coming soon!");
+        });
     }
 
     private void loadUsersDetails() {
-        binding.textName.setText(preferenceManager.getString(Constants.KEY_NAME));
+        binding.textName.setText("Chats");
         byte[] bytes = Base64.decode(preferenceManager.getString(Constants.KEY_IMAGE), Base64.DEFAULT);
         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
         binding.imageProfile.setImageBitmap(bitmap);

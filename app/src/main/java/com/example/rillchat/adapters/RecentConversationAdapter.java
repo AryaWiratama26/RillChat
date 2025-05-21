@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -36,7 +37,6 @@ public class RecentConversationAdapter extends RecyclerView.Adapter<RecentConver
                         false
                 )
         );
-
     }
 
     @Override
@@ -50,7 +50,6 @@ public class RecentConversationAdapter extends RecyclerView.Adapter<RecentConver
     }
 
     class ConversionViewHolder extends RecyclerView.ViewHolder {
-
         ItemContainerRecentConversationBinding binding;
 
         ConversionViewHolder(ItemContainerRecentConversationBinding itemContainerRecentConversationBinding) {
@@ -58,10 +57,19 @@ public class RecentConversationAdapter extends RecyclerView.Adapter<RecentConver
             binding = itemContainerRecentConversationBinding;
         }
 
-        void  setData(ChatMessage chatMessage) {
+        void setData(ChatMessage chatMessage) {
             binding.imageProfile.setImageBitmap(getConversionImage(chatMessage.conversionImage));
             binding.textName.setText(chatMessage.conversionName);
-            binding.textRecentMessage.setText(chatMessage.message);
+            
+            // Check if the message is an image
+            if (isBase64Image(chatMessage.message)) {
+                binding.imageMessagePreview.setVisibility(View.VISIBLE);
+                binding.textRecentMessage.setText("📷 Image");
+            } else {
+                binding.imageMessagePreview.setVisibility(View.GONE);
+                binding.textRecentMessage.setText(chatMessage.message);
+            }
+
             binding.getRoot().setOnClickListener(v -> {
                 User user = new User();
                 user.id = chatMessage.conversionId;
@@ -70,10 +78,28 @@ public class RecentConversationAdapter extends RecyclerView.Adapter<RecentConver
                 conversionListener.onConversionClicked(user);
             });
         }
-
     }
+
     private Bitmap getConversionImage(String encodedImage) {
+        if (encodedImage == null || encodedImage.isEmpty()) return null;
         byte[] bytes = Base64.decode(encodedImage, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+    }
+
+    private boolean isBase64Image(String text) {
+        if (text == null || text.isEmpty()) return false;
+        try {
+            // Check if the text is a valid base64 string and starts with image data
+            if (text.length() > 100 && text.matches("^[A-Za-z0-9+/=\\s]+$")) {
+                byte[] decodedBytes = Base64.decode(text, Base64.DEFAULT);
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length, options);
+                return options.outMimeType != null && options.outMimeType.startsWith("image/");
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
     }
 }

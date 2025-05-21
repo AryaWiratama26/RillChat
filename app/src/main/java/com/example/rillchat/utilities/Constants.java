@@ -25,10 +25,13 @@ public class Constants {
     public static final String KEY_SENDER_IMAGE = "senderImage";
     public static final String KEY_RECEIVER_IMAGE = "receiverImage";
     public static final String KEY_LAST_MESSAGE = "lastMessage";
+    public static final String KEY_CAPTION = "caption";
     public static final String AI_ID = "AI_BOT";
     public static final String AI_USER_ID = "AI_User";
     public static final String AI_IMAGE_BASE64 = "base64_encoded_image_string";
     public static final String REMOTE_MSG_AUTHORIZATION = "Authorization";
     public static final String REMOTE_MSG_CONTENT_TYPE = "Content-Type";
+    public static final String KEY_GROQ_API_KEY = "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";
+    public static final String KEY_OPENAI_API_KEY = "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";
     public static HashMap<String, String> remoteMsgHeaders = null;
 }
