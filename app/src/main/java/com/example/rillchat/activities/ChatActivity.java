@@ -14,6 +14,7 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -29,6 +30,7 @@ import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.example.rillchat.R;
 import com.example.rillchat.adapters.ChatAdapter;
@@ -85,10 +87,25 @@ public class ChatActivity extends BaseActivity {
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
+        
+        // Set status bar color to match header
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark, getTheme()));
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark));
+        }
+        
+        // Set up immersive mode
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        
         EditText inputMessage = findViewById(R.id.inputMessage);
         ImageView btnSend = findViewById(R.id.btnSend);
         ImageView btnCamera = findViewById(R.id.btnCamera);
-
 
         loadReceiverDetails();
         init();
@@ -123,13 +140,13 @@ public class ChatActivity extends BaseActivity {
                     binding.chatRecyclerView.getPaddingLeft(),
                     0,
                     binding.chatRecyclerView.getPaddingRight(),
-                    systemBars.bottom
+                    0 // Set bottom padding to 0
             );
             binding.inputMessage.setPadding(
                     binding.inputMessage.getPaddingLeft(),
                     binding.inputMessage.getPaddingTop(),
                     binding.inputMessage.getPaddingRight(),
-                    systemBars.bottom
+                    0 // Set bottom padding to 0
             );
             return insets;
         });
@@ -219,13 +236,30 @@ public class ChatActivity extends BaseActivity {
                 .addOnSuccessListener(documentReference -> conversionId = documentReference.getId());
     }
 
-    private void updateConversion(String message) {
+    private void updateConversion(String previewMessage) {
         DocumentReference documentReference =
                 database.collection(Constants.KEY_COLLECTION_CONVERSATION).document(conversionId);
         documentReference.update(
-                Constants.KEY_LAST_MESSAGE, message,
+                Constants.KEY_LAST_MESSAGE, previewMessage,
                 Constants.KEY_TIMESTAMP, new Date()
         );
+    }
+
+    private boolean isBase64Image(String text) {
+        if (text == null || text.isEmpty()) return false;
+        try {
+            // Check if the text is a valid base64 string and starts with image data
+            if (text.length() > 100 && text.matches("^[A-Za-z0-9+/=\\s]+$")) {
+                byte[] decodedBytes = Base64.decode(text, Base64.DEFAULT);
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length, options);
+                return options.outMimeType != null && options.outMimeType.startsWith("image/");
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
     }
 
     private void checkForConversion() {
@@ -261,6 +295,7 @@ public class ChatActivity extends BaseActivity {
         if (userMessage.isEmpty()) {
             return;
         }
+        String previewMessage = isBase64Image(userMessage) ? "📷 Image" : userMessage;
         HashMap<String, Object> message = new HashMap<>();
         message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
         message.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
@@ -270,7 +305,7 @@ public class ChatActivity extends BaseActivity {
         database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
 
         if(conversionId != null) {
-            updateConversion(userMessage);
+            updateConversion(previewMessage);
         } else {
             HashMap<String, Object> conversion = new HashMap<>();
             conversion.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
@@ -279,7 +314,7 @@ public class ChatActivity extends BaseActivity {
             conversion.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
             conversion.put(Constants.KEY_RECEIVER_NAME, receiverUser.name);
             conversion.put(Constants.KEY_RECEIVER_IMAGE, receiverUser.image);
-            conversion.put(Constants.KEY_LAST_MESSAGE, userMessage);
+            conversion.put(Constants.KEY_LAST_MESSAGE, previewMessage);
             conversion.put(Constants.KEY_TIMESTAMP, new Date());
             addConversion(conversion);
         }
@@ -335,6 +370,7 @@ public class ChatActivity extends BaseActivity {
                     chatMessage.senderId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
                     chatMessage.receiverId = documentChange.getDocument().getString(Constants.KEY_RECEIVER_ID);
                     chatMessage.message = documentChange.getDocument().getString(Constants.KEY_MESSAGE);
+                    chatMessage.caption = documentChange.getDocument().getString(Constants.KEY_CAPTION);
                     chatMessage.dateTime = getReadableDateTime(documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP));
                     chatMessage.dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
                     chatMessages.add(chatMessage);
@@ -384,21 +420,55 @@ public class ChatActivity extends BaseActivity {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 30, baos);
             byte[] imageBytes = baos.toByteArray();
             String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+            Log.d("SEND_IMAGE", "Base64 length: " + encodedImage.length());
 
-            HashMap<String, Object> message = new HashMap<>();
-            message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
-            message.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
-            message.put(Constants.KEY_MESSAGE, encodedImage);
-            message.put(Constants.KEY_TIMESTAMP, new Date());
-
-            database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
+            // Show dialog for caption
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_image_caption, null);
+            EditText captionInput = dialogView.findViewById(R.id.inputCaption);
+            
+            builder.setView(dialogView)
+                    .setTitle("Add Caption (Optional)")
+                    .setPositiveButton("Send", (dialog, which) -> {
+                        String caption = captionInput.getText().toString().trim();
+                        sendImageWithCaption(encodedImage, caption);
+                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                    .show();
 
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "Gagal memuat gambar", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void sendImageWithCaption(String encodedImage, String caption) {
+        HashMap<String, Object> message = new HashMap<>();
+        message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
+        message.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
+        message.put(Constants.KEY_MESSAGE, encodedImage);
+        message.put(Constants.KEY_CAPTION, caption);
+        message.put(Constants.KEY_TIMESTAMP, new Date());
+
+        database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
+        String previewMessage = caption.isEmpty() ? "📷 Image" : "📷 Image: " + caption;
+        
+        if(conversionId != null) {
+            updateConversion(previewMessage);
+        } else {
+            HashMap<String, Object> conversion = new HashMap<>();
+            conversion.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
+            conversion.put(Constants.KEY_SENDER_NAME, preferenceManager.getString(Constants.KEY_NAME));
+            conversion.put(Constants.KEY_SENDER_IMAGE, preferenceManager.getString(Constants.KEY_IMAGE));
+            conversion.put(Constants.KEY_RECEIVER_ID, receiverUser.id);
+            conversion.put(Constants.KEY_RECEIVER_NAME, receiverUser.name);
+            conversion.put(Constants.KEY_RECEIVER_IMAGE, receiverUser.image);
+            conversion.put(Constants.KEY_LAST_MESSAGE, previewMessage);
+            conversion.put(Constants.KEY_TIMESTAMP, new Date());
+            addConversion(conversion);
         }
     }
 
@@ -433,10 +503,38 @@ public class ChatActivity extends BaseActivity {
     }
 
 
-    @Override 
-    protected void onResume() {
+    @Override    protected void onResume() {
         super.onResume();
         listenAvailabilityOfReceiver();
+    }
+
+    // Add this method to launch image viewer
+    public void launchImageViewer(String image, String caption) {
+        Intent intent = new Intent(this, ImageViewerActivity.class);
+        intent.putExtra(Constants.KEY_IMAGE, image);
+        intent.putExtra(Constants.KEY_CAPTION, caption);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            // Re-apply immersive mode when focus is regained
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+            
+            // Ensure status bar color is correct
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark, getTheme()));
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark));
+            }
+        }
     }
 }
 

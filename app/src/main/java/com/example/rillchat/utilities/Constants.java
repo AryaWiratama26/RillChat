@@ -25,6 +25,7 @@ public class Constants {
     public static final String KEY_SENDER_IMAGE = "senderImage";
     public static final String KEY_RECEIVER_IMAGE = "receiverImage";
     public static final String KEY_LAST_MESSAGE = "lastMessage";
+    public static final String KEY_CAPTION = "caption";
     public static final String AI_ID = "AI_BOT";
     public static final String AI_USER_ID = "AI_User";
     public static final String AI_IMAGE_BASE64 = "base64_encoded_image_string";

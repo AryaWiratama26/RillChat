@@ -1,6 +1,7 @@
 package com.example.rillchat.activities;
 
 import android.animation.ObjectAnimator;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -12,7 +13,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.graphics.Insets;
 import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.core.view.WindowInsetsControllerCompat;
 
+import com.example.rillchat.R;
 import com.example.rillchat.adapters.ChatAdapter;
 import com.example.rillchat.ai.GroqClient;
 import com.example.rillchat.ai.GroqRequest;
@@ -48,6 +51,21 @@ public class AIChatActivity extends BaseActivity {
         binding = ActivityAiChatBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
+        
+        // Set status bar color to match header
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark, getTheme()));
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark));
+        }
+        
+        // Set up immersive mode
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
         init();
         setListeners();
@@ -87,13 +105,13 @@ public class AIChatActivity extends BaseActivity {
                     binding.chatRecyclerView.getPaddingLeft(),
                     0,
                     binding.chatRecyclerView.getPaddingRight(),
-                    systemBars.bottom
+                    0 // Set bottom padding to 0
             );
             binding.inputMessage.setPadding(
                     binding.inputMessage.getPaddingLeft(),
                     binding.inputMessage.getPaddingTop(),
                     binding.inputMessage.getPaddingRight(),
-                    systemBars.bottom
+                    0 // Set bottom padding to 0
             );
             return insets;
         });
@@ -284,5 +302,26 @@ public class AIChatActivity extends BaseActivity {
 
     private String getCurrentTime() {
         return new SimpleDateFormat("MMMM dd, yyyy - hh:mm a", Locale.getDefault()).format(new Date());
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            // Re-apply immersive mode when focus is regained
+            View decorView = getWindow().getDecorView();
+            decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+            
+            // Ensure status bar color is correct
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark, getTheme()));
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark));
+            }
+        }
     }
 }
