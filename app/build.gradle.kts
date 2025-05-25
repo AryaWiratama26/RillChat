@@ -78,7 +78,7 @@ dependencies {
     // Core Markwon (Markdown Chat)
     implementation(libs.core)
 
-    // (Optional) Plugin tambahan
+    // (Optional) Plugin tambahan Markwon
     implementation(libs.markwon.html)
     implementation(libs.markwon.ext.strikethrough)
     implementation(libs.markwon.ext.tasklist)
@@ -87,4 +87,7 @@ dependencies {
     // Glide (Rendering Image)
     implementation (libs.glide)
     annotationProcessor (libs.glide.compiler)
+
+    // Notification API (One Signal)
+    implementation(libs.onesignal)
 }

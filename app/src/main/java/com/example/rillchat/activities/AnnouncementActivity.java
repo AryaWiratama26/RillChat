@@ -93,9 +93,8 @@ public class AnnouncementActivity extends BaseActivity {
             } else if (itemId == R.id.navigation_announce) {
                 return true;
             } else if (itemId == R.id.navigation_settings) {
-                // Settings feature not implemented yet
-                Toast.makeText(getApplicationContext(), "Settings feature coming soon!", Toast.LENGTH_SHORT).show();
-                return false;
+                startActivity(new Intent(AnnouncementActivity.this, SettingsActivity.class));
+                finish();
             }
             return false;
         });

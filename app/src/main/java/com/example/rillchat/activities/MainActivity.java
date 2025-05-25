@@ -1,16 +1,22 @@
 package com.example.rillchat.activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
@@ -20,6 +26,7 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import com.example.rillchat.R;
 import com.example.rillchat.adapters.RecentConversationAdapter;
 import com.example.rillchat.databinding.ActivityMainBinding;
+import com.example.rillchat.firebase.MessagingService;
 import com.example.rillchat.listeners.ConversionListener;
 import com.example.rillchat.models.ChatMessage;
 import com.example.rillchat.models.User;
@@ -33,6 +40,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.example.rillchat.utilities.OneSignalNotificationHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,6 +54,18 @@ public class MainActivity extends BaseActivity implements ConversionListener {
     private List<ChatMessage> conversations;
     private RecentConversationAdapter conversationAdapter;
     private FirebaseFirestore database;
+
+    // Declare the launcher at the top of your Activity/Fragment:
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Permission is granted
+                    showToast("Notification permission granted");
+                } else {
+                    // Permission is denied
+                    showToast("Notifications disabled. You won't receive message alerts.");
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +103,12 @@ public class MainActivity extends BaseActivity implements ConversionListener {
         setListeners();
         listenConversations();
         setupBottomNavigation();
+        
+        // Request notification permission for Android 13+
+        askNotificationPermission();
+        
+        // Start the messaging service explicitly
+        startMessagingService();
             
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -132,8 +158,7 @@ public class MainActivity extends BaseActivity implements ConversionListener {
                 startActivity(new Intent(MainActivity.this, AnnouncementActivity.class));
                 return false;
             } else if (itemId == R.id.navigation_settings) {
-                // Settings feature not implemented yet
-                Toast.makeText(getApplicationContext(), "Settings feature coming soon!", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 return false;
             }
             return false;
@@ -224,6 +249,22 @@ public class MainActivity extends BaseActivity implements ConversionListener {
         FirebaseMessaging.getInstance().getToken().addOnSuccessListener(this::updateToken);
     }
 
+    private void askNotificationPermission() {
+        // This is only necessary for API level >= 33 (TIRAMISU)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != 
+                    PackageManager.PERMISSION_GRANTED) {
+                // Permission not yet granted, request it
+                Log.d("NOTIFICATION_PERMISSION", "Requesting POST_NOTIFICATIONS permission");
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            } else {
+                Log.d("NOTIFICATION_PERMISSION", "POST_NOTIFICATIONS permission already granted");
+            }
+        } else {
+            Log.d("NOTIFICATION_PERMISSION", "POST_NOTIFICATIONS permission not required for this Android version");
+        }
+    }
+
     private void updateToken(String token) {
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         DocumentReference documentReference = 
@@ -235,7 +276,7 @@ public class MainActivity extends BaseActivity implements ConversionListener {
     }
 
     private void signOut() {
-        showToast("Signing out brader.....");
+        showToast("Signing out...");
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         DocumentReference documentReference = 
                 database.collection(Constants.KEY_COLLECTION_USERS).document(
@@ -243,13 +284,17 @@ public class MainActivity extends BaseActivity implements ConversionListener {
                 );
         HashMap<String, Object> updates = new HashMap<>();
         updates.put(Constants.KEY_FCM_TOKEN, FieldValue.delete());
+        updates.put(Constants.KEY_AVAILABILITY, 0);
         documentReference.update(updates)
                 .addOnSuccessListener(unused -> {
+                    // Clear OneSignal external user ID
+                    OneSignalNotificationHelper.clearExternalUserId();
+                    // Clear preferences and redirect to sign in
                     preferenceManager.clear();
                     startActivity(new Intent(getApplicationContext(), SignInActivity.class));
                     finish();
                 })
-                .addOnFailureListener(e -> showToast("Unable to sign out brader"));
+                .addOnFailureListener(e -> showToast("Unable to sign out"));
     }
 
     @Override
@@ -257,6 +302,14 @@ public class MainActivity extends BaseActivity implements ConversionListener {
         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
         intent.putExtra(Constants.KEY_USER, user);
         startActivity(intent);
+    }
+
+    private void startMessagingService() {
+        Intent serviceIntent = new Intent(this, MessagingService.class);
+        Log.d("MainActivity", "Explicitly starting MessagingService");
+        
+        // Use regular service instead of foreground service
+        startService(serviceIntent);
     }
 
 }

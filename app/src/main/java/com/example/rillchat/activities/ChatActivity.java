@@ -38,6 +38,7 @@ import com.example.rillchat.databinding.ActivityChatBinding;
 import com.example.rillchat.models.ChatMessage;
 import com.example.rillchat.models.User;
 import com.example.rillchat.utilities.Constants;
+import com.example.rillchat.utilities.OneSignalNotificationHelper;
 import com.example.rillchat.utilities.PreferenceManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.firestore.DocumentReference;
@@ -47,6 +48,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.DocumentChange;
 
+import com.example.rillchat.network.ApiClient;
+import com.example.rillchat.network.ApiService;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -304,6 +313,17 @@ public class ChatActivity extends BaseActivity {
 
         database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
 
+        // Send OneSignal notification
+        String senderName = preferenceManager.getString(Constants.KEY_NAME);
+        String senderImage = preferenceManager.getString(Constants.KEY_IMAGE);
+        OneSignalNotificationHelper.sendChatNotification(
+            receiverUser.id,  // receiver's external user ID
+            senderName,       // sender's name
+            preferenceManager.getString(Constants.KEY_USER_ID), // sender's ID
+            userMessage,      // message content
+            senderImage       // sender's image
+        );
+
         if(conversionId != null) {
             updateConversion(previewMessage);
         } else {
@@ -318,6 +338,7 @@ public class ChatActivity extends BaseActivity {
             conversion.put(Constants.KEY_TIMESTAMP, new Date());
             addConversion(conversion);
         }
+        
         binding.inputMessage.setText(null);
     }
 
@@ -455,6 +476,17 @@ public class ChatActivity extends BaseActivity {
 
         database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
         String previewMessage = caption.isEmpty() ? "📷 Image" : "📷 Image: " + caption;
+        
+        // Send OneSignal notification
+        String senderName = preferenceManager.getString(Constants.KEY_NAME);
+        String senderImage = preferenceManager.getString(Constants.KEY_IMAGE);
+        OneSignalNotificationHelper.sendChatNotification(
+            receiverUser.id,  // receiver's external user ID
+            senderName,       // sender's name
+            preferenceManager.getString(Constants.KEY_USER_ID), // sender's ID
+            previewMessage,   // message content (with emoji and caption)
+            senderImage       // sender's image
+        );
         
         if(conversionId != null) {
             updateConversion(previewMessage);

@@ -35,6 +35,7 @@ public class SignUpActivity extends AppCompatActivity {
     private ActivitySignUpBinding binding;
     private PreferenceManager preferenceManager;
     private String encodedImage;
+    private String nim;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +56,8 @@ public class SignUpActivity extends AppCompatActivity {
         binding.textHaveAccount.setOnClickListener(v -> onBackPressed());
         binding.buttonSignUp.setOnClickListener(v -> {
             if(isValidSignUpDetails()) {
-                signUp();
+                nim = binding.inputNIM.getText().toString().trim();
+                checkNimAndSignUp();
             }
         });
         binding.layoutImage.setOnClickListener(v -> {
@@ -69,10 +71,50 @@ public class SignUpActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
     
-    private void signUp() {
+    private void checkNimAndSignUp() {
         loading(true);
+        String email = binding.inputEmail.getText().toString().trim();
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        
+        // First check if NIM already exists
+        database.collection(Constants.KEY_COLLECTION_USERS)
+                .whereEqualTo("nim", nim)
+                .get()
+                .addOnCompleteListener(nimTask -> {
+                    if (nimTask.isSuccessful() && nimTask.getResult() != null && nimTask.getResult().getDocuments().size() > 0) {
+                        loading(false);
+                        showToast("NIM already exists");
+                    } else {
+                        // Then check if email already exists
+                        database.collection(Constants.KEY_COLLECTION_USERS)
+                                .whereEqualTo(Constants.KEY_EMAIL, email)
+                                .get()
+                                .addOnCompleteListener(emailTask -> {
+                                    if (emailTask.isSuccessful() && emailTask.getResult() != null && 
+                                            emailTask.getResult().getDocuments().size() > 0) {
+                                        loading(false);
+                                        showToast("Email already registered");
+                                    } else {
+                                        // Both NIM and email are unique, proceed to sign up
+                                        signUp();
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    loading(false);
+                                    showToast("Error checking email: " + e.getMessage());
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    loading(false);
+                    showToast("Error checking NIM: " + e.getMessage());
+                });
+    }
+
+    private void signUp() {
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         HashMap<String, Object> user = new HashMap<>();
+        user.put("nim", nim);
         user.put(Constants.KEY_NAME, binding.inputName.getText().toString());
         user.put(Constants.KEY_EMAIL, binding.inputEmail.getText().toString());
         user.put(Constants.KEY_PASSWORD, binding.inputPassword.getText().toString());
@@ -92,7 +134,6 @@ public class SignUpActivity extends AppCompatActivity {
                 .addOnFailureListener(exception -> {
                     loading(false);
                     showToast(exception.getMessage());
-
                 });
     }
 
@@ -132,17 +173,26 @@ public class SignUpActivity extends AppCompatActivity {
         if (encodedImage == null){
             showToast("Select profile image");
             return false;
-        }else if(binding.inputName.getText().toString().trim().isEmpty()) {
+        } else if (binding.inputNIM.getText() == null || binding.inputNIM.getText().toString().trim().isEmpty()) {
+            showToast("Enter NIM");
+            return false;
+        } else if (!isValidNIM(binding.inputNIM.getText().toString().trim())) {
+            showToast("NIM must be 9-10 numeric digits");
+            return false;
+        } else if(binding.inputName.getText().toString().trim().isEmpty()) {
             showToast("Enter Name");
             return false;
         } else if (binding.inputEmail.getText().toString().trim().isEmpty()) {
             showToast("Enter Email");
             return false;
         } else if (!Patterns.EMAIL_ADDRESS.matcher(binding.inputEmail.getText().toString().trim()).matches()) {
-            showToast("Enter Valid Image");
+            showToast("Enter Valid Email");
             return false;
         } else if (binding.inputPassword.getText().toString().trim().isEmpty()) {
             showToast("Enter Password");
+            return false;
+        } else if (binding.inputPassword.getText().toString().trim().length() < 6) {
+            showToast("Password must be at least 6 characters");
             return false;
         } else if (binding.inputConfirmPassword.getText().toString().trim().isEmpty()) {
             showToast("Confirm Your Password");
@@ -150,8 +200,23 @@ public class SignUpActivity extends AppCompatActivity {
         } else if (!binding.inputPassword.getText().toString().equals(binding.inputConfirmPassword.getText().toString())) {
             showToast("Password & Confirm Password does not match");
             return false;
-        }else {
+        } else {
             return true;
+        }
+    }
+    
+    private boolean isValidNIM(String nim) {
+        // Check if NIM is between 9 and 10 characters
+        if (nim.length() < 9 || nim.length() > 10) {
+            return false;
+        }
+        
+        // Check if NIM contains only digits
+        try {
+            Long.parseLong(nim);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
         }
     }
 

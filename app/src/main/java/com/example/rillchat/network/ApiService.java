@@ -8,7 +8,7 @@ import retrofit2.http.HeaderMap;
 import retrofit2.http.POST;
 
 public interface ApiService {
-    @POST("send")
+    @POST("sendNotification")
     Call<String> sendMessage(
             @HeaderMap HashMap<String, String> headers, 
             @Body String messageBody
