@@ -29,7 +29,24 @@ public class Constants {
     public static final String AI_ID = "AI_BOT";
     public static final String AI_USER_ID = "AI_User";
     public static final String AI_IMAGE_BASE64 = "base64_encoded_image_string";
-    public static final String REMOTE_MSG_AUTHORIZATION = "Authorization";
+    
+    // Direct device-to-device notifications will be handled in the app itself
+    // without requiring server authentication
     public static final String REMOTE_MSG_CONTENT_TYPE = "Content-Type";
+    
+    // OneSignal related constants
+    public static final String KEY_COLLECTION_USER_TOKENS = "user_tokens";
+    public static final String KEY_NOTIFICATION_TYPE = "notificationType";
+    public static final String NOTIFICATION_TYPE_CHAT = "chat";
+    public static final String NOTIFICATION_TYPE_FRIEND_REQUEST = "friend_request";
+    
     public static HashMap<String, String> remoteMsgHeaders = null;
+    
+    public static HashMap<String, String> getRemoteMsgHeaders() {
+        if (remoteMsgHeaders == null) {
+            remoteMsgHeaders = new HashMap<>();
+            remoteMsgHeaders.put(REMOTE_MSG_CONTENT_TYPE, "application/json");
+        }
+        return remoteMsgHeaders;
+    }
 }
