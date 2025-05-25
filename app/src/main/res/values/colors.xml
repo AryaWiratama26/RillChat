@@ -14,5 +14,12 @@
     <color name="green">#008000</color>
     <color name="green_blur">#8034C759</color>
     <color name="black">#090D16</color>
+    <color name="biru_tua_upb">#0A2896</color>
+    <color name="merah_tua_upb">#E0202E</color>
+    <color name="putih_jernih">#FFFFFF</color>
+    <color name="hitam_upb">#171717</color>
+    <color name="abu_upb">#C5C6C9</color>
+    <color name="pink_upb">#F99DA9</color>
+    <color name="biru_muda_upb">#529BDA</color>
 
 </resources>

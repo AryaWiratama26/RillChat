@@ -197,11 +197,17 @@ public class AIChatActivity extends BaseActivity {
                 "- Skripsi: Bimbingan 1jt, Sidang 1jt\n" +
                 "- Yudisium: 250k\n" +
                 "- Wisuda: 3jt\n" +
+                "- TOEFL/MYOB: Rp500.000.\n"+
                 "\n" +
                 "# KONTAK\n" +
                 "- Email: humas@pelitabangsa.ac.id\n" +
                 "- Telepon: +62 821-8888-2441\n" +
-                "- Website: https://humas.pelitabangsa.ac.id" +
+                "- Website: https://humas.pelitabangsa.ac.id\n" +
+                "- Instagram: @upb_official, @kampuspelitabangsa\n" +
+                "# Call Center\n"+
+                "- Cikarang: 0811-1588-831.\n" +
+                "- Bekasi: 0896-6929-1608.\n" +
+                "- Karawang: 0857-7406-0016.\n" +
                 "# KONTAK PROGRAM STUDI\n" +
                 "- S2 Manajemen: +62 857-8016-8070\n" +
                 "- S1 Manajemen: +62 858-9459-7208\n" +
