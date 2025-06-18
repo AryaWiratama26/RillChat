@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_new_chat"
+        android:icon="@drawable/ic_add"
+        android:title="New Chat" />
+    <item
+        android:id="@+id/action_new_ai_chat"
+        android:icon="@drawable/llamakicaw_ai_3"
+        android:title="New AI Chat" />
+</menu> 

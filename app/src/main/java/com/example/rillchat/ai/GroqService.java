@@ -8,7 +8,8 @@ import retrofit2.http.POST;
 public interface GroqService {
 
     @Headers({
-            "Authorization: Bearer {YOUR GROQ_API} dont steal mine!",
+ 
+            "Authorization: Bearer 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",
             "Content-Type: application/json"
     })
     @POST("chat/completions")

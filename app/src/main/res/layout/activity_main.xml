@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="@color/primary_dark"
+    android:background="@drawable/background_gradient_main"
     tools:context=".activities.MainActivity">
 
     <!-- Simplified Header -->
@@ -14,7 +14,6 @@
         android:id="@+id/headerBackground"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_50sdp"
-        android:background="@color/primary_dark"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- App Title -->
@@ -24,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_16sdp"
         android:text="Chats"
-        android:textColor="@color/primary_white"
+        android:textColor="@color/putih_jernih"
         android:textSize="@dimen/_24ssp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/headerBackground"
@@ -43,7 +42,7 @@
         app:layout_constraintTop_toTopOf="@id/headerBackground"
         app:riv_corner_radius="@dimen/_18sdp"
         app:riv_border_width="1dp"
-        app:riv_border_color="#FFFFFF"
+        app:riv_border_color="@color/putih_jernih"
         app:riv_oval="true" />
 
     <!-- Sign Out Button (Hidden) -->
@@ -83,6 +82,7 @@
             app:tint="#FFFFFF" />
 
         <TextView
+            android:id="@+id/textSearchHint"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_8sdp"
@@ -95,6 +95,25 @@
             app:layout_constraintStart_toEndOf="@id/imageSearch"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <EditText
+            android:id="@+id/editTextMainSearch"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/_8sdp"
+            android:layout_marginEnd="@dimen/_12sdp"
+            android:background="@android:color/transparent"
+            android:hint="Search chats or users..."
+            android:padding="0dp"
+            android:textColor="@color/primary_white"
+            android:textColorHint="#80FFFFFF"
+            android:textSize="@dimen/_14ssp"
+            android:drawableStart="@drawable/ic_search"
+            android:drawablePadding="8dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/imageSearch"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Content Frame -->
@@ -129,38 +148,57 @@
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary_dark"
+        android:background="@color/biru_tua_upb"
+        android:animateLayoutChanges="false"
         app:itemIconTint="@color/bottom_nav_item_color"
         app:itemTextColor="@color/bottom_nav_item_color"
+        app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/bottom_navigation_menu" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabNewAIChat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
-        android:backgroundTint="@color/primary_dark"
-        android:contentDescription="@string/app_name"
-        android:src="@drawable/llamakicaw_ai_3"
-        app:fabSize="auto"
-        app:layout_constraintBottom_toTopOf="@id/fabNewChat"
-        app:layout_constraintEnd_toEndOf="@+id/fabNewChat"
-        app:layout_constraintStart_toStartOf="@+id/fabNewChat" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabNewChat"
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fabMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/_24sdp"
         android:layout_marginBottom="@dimen/_24sdp"
-        android:backgroundTint="@color/primary_dark"
-        android:contentDescription="@string/app_name"
-        android:src="@drawable/ic_add"
-        android:tint="@color/primary_white"
+        android:backgroundTint="@color/biru_tua_upb"
+        android:textColor="@color/putih_jernih"
+        app:icon="@drawable/ic_arrow_up"
+        app:iconTint="@color/putih_jernih"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fabNewChat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/_24sdp"
+        android:layout_marginBottom="@dimen/_16sdp"
+        android:backgroundTint="@color/biru_tua_upb"
+        android:text="New Chat"
+        android:textColor="@color/putih_jernih"
+        android:visibility="gone"
+        app:icon="@drawable/ic_add"
+        app:iconTint="@color/putih_jernih"
+        app:layout_constraintBottom_toTopOf="@id/fabMenu"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fabAIChat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/_24sdp"
+        android:layout_marginBottom="@dimen/_16sdp"
+        android:backgroundTint="@color/biru_tua_upb"
+        android:text="New AI Chat"
+        android:textColor="@color/putih_jernih"
+        android:visibility="gone"
+        app:icon="@drawable/llamakicaw_ai_3"
+        app:iconTint="@color/putih_jernih"
+        app:layout_constraintBottom_toTopOf="@id/fabNewChat"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.constraintlayout.widget.Guideline

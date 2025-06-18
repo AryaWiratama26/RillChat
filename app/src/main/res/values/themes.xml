@@ -1,13 +1,29 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.Theme.RillChat" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/primary_dark</item>
-        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/primary_dark</item>
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/biru_tua_upb</item>
+        <item name="colorPrimaryVariant">@color/biru_muda_upb</item>
+        <item name="colorOnPrimary">@color/putih_jernih</item>
+        
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/merah_tua_upb</item>
+        <item name="colorSecondaryVariant">@color/pink_upb</item>
+        <item name="colorOnSecondary">@color/hitam_upb</item>
+        
+        <!-- Status bar color -->
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/biru_tua_upb</item>
+        
+        <!-- Text colors -->
+        <item name="android:textColor">@color/hitam_upb</item>
+        <item name="android:textColorSecondary">@color/abu_upb</item>
+        
         <item name="floatingActionButtonStyle" type="style">@style/FloatingActionButtonStyle</item>
     </style>
     <style name="Theme.RillChat" parent="Base.Theme.RillChat" />
 
     <style name="FloatingActionButtonStyle" parent="Widget.Design.FloatingActionButton">
         <item name="shapeAppearance">@style/FabShapeStyle1</item>
+        <item name="backgroundTint">@color/biru_tua_upb</item>
     </style>
 
     <style name="FabShapeStyle1" parent="ShapeAppearance.MaterialComponents.SmallComponent">

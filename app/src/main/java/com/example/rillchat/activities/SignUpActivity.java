@@ -30,7 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
 
-public class SignUpActivity extends AppCompatActivity {
+public class    SignUpActivity extends AppCompatActivity {
 
     private ActivitySignUpBinding binding;
     private PreferenceManager preferenceManager;
@@ -50,10 +50,10 @@ public class SignUpActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-    }
+    }           
 
     private void setListeners() {
-        binding.textHaveAccount.setOnClickListener(v -> onBackPressed());
+        binding.textSignIn.setOnClickListener(v -> onBackPressed());
         binding.buttonSignUp.setOnClickListener(v -> {
             if(isValidSignUpDetails()) {
                 nim = binding.inputNIM.getText().toString().trim();

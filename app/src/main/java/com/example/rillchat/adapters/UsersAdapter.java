@@ -17,14 +17,27 @@ import com.example.rillchat.models.User;
 
 import java.util.List;
 
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.BackgroundColorSpan;
+import android.graphics.Color;
+
 public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHolder> {
 
-    private final List<User> users;
+    private List<User> users;
     private final UserListener userListener;
+    private String highlightQuery = "";
 
     public UsersAdapter(List<User> users, UserListener userListener) {
         this.users = users;
         this.userListener = userListener;
+    }
+
+    public void setUsers(List<User> users, String query) {
+        this.users = users;
+        this.highlightQuery = query;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -57,7 +70,23 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHold
         }
 
         void setUserData(User user) {
-            binding.textName.setText(user.name);
+            if (!TextUtils.isEmpty(highlightQuery) && !TextUtils.isEmpty(user.name)) {
+                int start = user.name.toLowerCase().indexOf(highlightQuery.toLowerCase());
+                if (start >= 0) {
+                    SpannableString spannable = new SpannableString(user.name);
+                    spannable.setSpan(
+                        new BackgroundColorSpan(Color.YELLOW),
+                        start,
+                        start + highlightQuery.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    );
+                    binding.textName.setText(spannable);
+                } else {
+                    binding.textName.setText(user.name);
+                }
+            } else {
+                binding.textName.setText(user.name);
+            }
             binding.textEmail.setText(user.email);
             binding.imageProfile.setImageBitmap(getUserImage(user.image));
             binding.getRoot().setOnClickListener(v -> userListener.onUserClicked(user));

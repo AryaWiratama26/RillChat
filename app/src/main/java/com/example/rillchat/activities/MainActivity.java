@@ -7,11 +7,20 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.text.Editable;
+import android.text.style.BackgroundColorSpan;
+import android.graphics.Color;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
+import android.widget.TextView;
+import android.widget.FrameLayout;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -41,6 +50,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.example.rillchat.utilities.OneSignalNotificationHelper;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,6 +65,13 @@ public class MainActivity extends BaseActivity implements ConversionListener {
     private List<ChatMessage> conversations;
     private RecentConversationAdapter conversationAdapter;
     private FirebaseFirestore database;
+    private ExtendedFloatingActionButton fabMenu;
+    private ExtendedFloatingActionButton fabNewChat;
+    private ExtendedFloatingActionButton fabAIChat;
+    private boolean isFabMenuExpanded = false;
+    private List<ChatMessage> allConversations = new ArrayList<>(); // Store all for search
+    private String mainSearchQuery = "";
+    private TextView noResultsTextView;
 
     // Declare the launcher at the top of your Activity/Fragment:
     private final ActivityResultLauncher<String> requestPermissionLauncher =
@@ -81,9 +99,9 @@ public class MainActivity extends BaseActivity implements ConversionListener {
         
         // Apply status bar color AFTER EdgeToEdge and setContentView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark, getTheme()));
+            getWindow().setStatusBarColor(getResources().getColor(R.color.biru_tua_upb, getTheme()));
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark));
+            getWindow().setStatusBarColor(getResources().getColor(R.color.biru_tua_upb));
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         }
@@ -97,6 +115,12 @@ public class MainActivity extends BaseActivity implements ConversionListener {
             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         
         preferenceManager = new PreferenceManager(getApplicationContext());
+        
+        // Initialize FABs first
+        fabMenu = findViewById(R.id.fabMenu);
+        fabNewChat = findViewById(R.id.fabNewChat);
+        fabAIChat = findViewById(R.id.fabAIChat);
+        
         init();
         loadUsersDetails();
         getToken();
@@ -115,6 +139,14 @@ public class MainActivity extends BaseActivity implements ConversionListener {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             return insets;
         });
+
+        // Add a TextView for 'No results found' (programmatically)
+        noResultsTextView = new TextView(this);
+        noResultsTextView.setText("No results found");
+        noResultsTextView.setTextColor(Color.GRAY);
+        noResultsTextView.setTextSize(16);
+        noResultsTextView.setVisibility(View.GONE);
+        ((FrameLayout) findViewById(R.id.conversationRecyclerView).getParent()).addView(noResultsTextView);
     }
 
     @Override
@@ -131,9 +163,9 @@ public class MainActivity extends BaseActivity implements ConversionListener {
                 
             // Reapply status bar color
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark, getTheme()));
+                getWindow().setStatusBarColor(getResources().getColor(R.color.biru_tua_upb, getTheme()));
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark));
+                getWindow().setStatusBarColor(getResources().getColor(R.color.biru_tua_upb));
             }
         }
     }
@@ -167,16 +199,51 @@ public class MainActivity extends BaseActivity implements ConversionListener {
 
     private void setListeners() {
         binding.imageSignOut.setOnClickListener(v -> signOut());
-        binding.fabNewChat.setOnClickListener(v ->
-                startActivity(new Intent(getApplicationContext(), UsersActivity.class)));
-        binding.fabNewAIChat.setOnClickListener(v -> {
+        
+        // Set up FAB menu click listener
+        fabMenu.setOnClickListener(v -> toggleFabMenu());
+
+        // Set up individual FAB click listeners
+        fabNewChat.setOnClickListener(v -> {
+            startActivity(new Intent(getApplicationContext(), UsersActivity.class));
+            toggleFabMenu();
+        });
+
+        fabAIChat.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AIChatActivity.class);
             startActivity(intent);
+            toggleFabMenu();
         });
         
-        // Set up search bar
+        // WhatsApp-style search bar logic
         binding.searchCardView.setOnClickListener(v -> {
-            showToast("Search feature coming soon!");
+            binding.textSearchHint.setVisibility(View.GONE);
+            binding.editTextMainSearch.setVisibility(View.VISIBLE);
+            binding.editTextMainSearch.requestFocus();
+        });
+        binding.editTextMainSearch.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus && TextUtils.isEmpty(binding.editTextMainSearch.getText())) {
+                binding.editTextMainSearch.setVisibility(View.GONE);
+                binding.textSearchHint.setVisibility(View.VISIBLE);
+                filterConversations("");
+            }
+        });
+        binding.editTextMainSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterConversations(s.toString());
+                if (TextUtils.isEmpty(s)) {
+                    binding.editTextMainSearch.setVisibility(View.GONE);
+                    binding.textSearchHint.setVisibility(View.VISIBLE);
+                } else {
+                    binding.editTextMainSearch.setVisibility(View.VISIBLE);
+                    binding.textSearchHint.setVisibility(View.GONE);
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
     }
 
@@ -224,7 +291,7 @@ public class MainActivity extends BaseActivity implements ConversionListener {
                   chatMessage.message = documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
                   chatMessage.dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
                   conversations.add(chatMessage);
-              } else if (documentChange.getType() == DocumentChange.Type.MODIFIED) {
+              } else {
                   for (int i = 0; i < conversations.size(); i++) {
                       String senderId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
                       String receiverId = documentChange.getDocument().getString(Constants.KEY_RECEIVER_ID);
@@ -237,11 +304,13 @@ public class MainActivity extends BaseActivity implements ConversionListener {
               }
           }
           Collections.sort(conversations, (obj1, obj2) -> obj2.dateObject.compareTo(obj2.dateObject));
-          conversationAdapter.notifyDataSetChanged();
+          // Store all conversations for search
+          allConversations.clear();
+          allConversations.addAll(conversations);
+          filterConversations(mainSearchQuery);
           binding.conversationRecyclerView.smoothScrollToPosition(0);
           binding.conversationRecyclerView.setVisibility(View.VISIBLE);
           binding.progressBar.setVisibility(View.GONE);
-
       }
     };
 
@@ -310,6 +379,42 @@ public class MainActivity extends BaseActivity implements ConversionListener {
         
         // Use regular service instead of foreground service
         startService(serviceIntent);
+    }
+
+    private void toggleFabMenu() {
+        isFabMenuExpanded = !isFabMenuExpanded;
+
+        if (isFabMenuExpanded) {
+            fabNewChat.show();
+            fabAIChat.show();
+            fabNewChat.setVisibility(View.VISIBLE);
+            fabAIChat.setVisibility(View.VISIBLE);
+            fabMenu.setIcon(getDrawable(R.drawable.ic_close));
+            fabMenu.setText("Close");
+        } else {
+            fabNewChat.hide();
+            fabAIChat.hide();
+            fabNewChat.postDelayed(() -> fabNewChat.setVisibility(View.GONE), 200);
+            fabAIChat.postDelayed(() -> fabAIChat.setVisibility(View.GONE), 200);
+            fabMenu.setIcon(getDrawable(R.drawable.ic_arrow_up));
+            fabMenu.setText("New Chat");
+        }
+    }
+
+    private void filterConversations(String query) {
+        mainSearchQuery = query;
+        List<ChatMessage> filtered = new ArrayList<>();
+        for (ChatMessage chat : allConversations) {
+            boolean nameMatch = chat.conversionName != null && chat.conversionName.toLowerCase().contains(query.toLowerCase());
+            boolean messageMatch = chat.message != null && chat.message.toLowerCase().contains(query.toLowerCase());
+            if (nameMatch || messageMatch) {
+                filtered.add(chat);
+            }
+        }
+        conversationAdapter.setConversations(filtered, query);
+        boolean noResults = filtered.isEmpty() && !TextUtils.isEmpty(query);
+        binding.conversationRecyclerView.setVisibility(noResults ? View.GONE : View.VISIBLE);
+        noResultsTextView.setVisibility(noResults ? View.VISIBLE : View.GONE);
     }
 
 }

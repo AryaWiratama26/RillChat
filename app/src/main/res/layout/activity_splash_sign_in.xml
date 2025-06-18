@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_gradient">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.35">
+
+            <ImageView
+                android:id="@+id/logoImage"
+                android:layout_width="@dimen/_300sdp"
+                android:layout_height="@dimen/_300sdp"
+                android:src="@mipmap/ic_rillchat_upb_fixed_foreground"
+                android:contentDescription="RillChat Logo"
+                android:scaleType="fitCenter"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/swipeUpContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginBottom="@dimen/_24sdp"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/swipeUpText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Swipe up to display the\nLogin screen"
+                android:textAlignment="center"
+                android:textColor="@color/putih_jernih"
+                android:textSize="@dimen/_14ssp"
+                android:alpha="0.9"/>
+
+            <ImageView
+                android:id="@+id/swipeUpIcon"
+                android:layout_width="@dimen/_40sdp"
+                android:layout_height="@dimen/_40sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:src="@drawable/ic_chevron_up"
+                android:contentDescription="Swipe Up Indicator"
+                app:tint="@color/putih_jernih"/>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/bottomSheet"
+        layout="@layout/activity_sign_in"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout> 

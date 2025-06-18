@@ -17,14 +17,27 @@ import com.example.rillchat.models.User;
 
 import java.util.List;
 
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.BackgroundColorSpan;
+import android.graphics.Color;
+
 public class RecentConversationAdapter extends RecyclerView.Adapter<RecentConversationAdapter.ConversionViewHolder> {
 
-    private final List<ChatMessage> chatMessages;
+    private List<ChatMessage> chatMessages;
     private final ConversionListener conversionListener;
+    private String highlightQuery = "";
 
     public RecentConversationAdapter(List<ChatMessage> chatMessages, ConversionListener conversionListener) {
         this.chatMessages = chatMessages;
         this.conversionListener = conversionListener;
+    }
+
+    public void setConversations(List<ChatMessage> chatMessages, String query) {
+        this.chatMessages = chatMessages;
+        this.highlightQuery = query;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -59,17 +72,49 @@ public class RecentConversationAdapter extends RecyclerView.Adapter<RecentConver
 
         void setData(ChatMessage chatMessage) {
             binding.imageProfile.setImageBitmap(getConversionImage(chatMessage.conversionImage));
-            binding.textName.setText(chatMessage.conversionName);
-            
+            // Highlight name
+            if (!TextUtils.isEmpty(highlightQuery) && !TextUtils.isEmpty(chatMessage.conversionName)) {
+                int start = chatMessage.conversionName.toLowerCase().indexOf(highlightQuery.toLowerCase());
+                if (start >= 0) {
+                    SpannableString spannable = new SpannableString(chatMessage.conversionName);
+                    spannable.setSpan(
+                        new BackgroundColorSpan(Color.YELLOW),
+                        start,
+                        start + highlightQuery.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    );
+                    binding.textName.setText(spannable);
+                } else {
+                    binding.textName.setText(chatMessage.conversionName);
+                }
+            } else {
+                binding.textName.setText(chatMessage.conversionName);
+            }
+            // Highlight message
+            if (!TextUtils.isEmpty(highlightQuery) && !TextUtils.isEmpty(chatMessage.message)) {
+                int start = chatMessage.message.toLowerCase().indexOf(highlightQuery.toLowerCase());
+                if (start >= 0) {
+                    SpannableString spannable = new SpannableString(chatMessage.message);
+                    spannable.setSpan(
+                        new BackgroundColorSpan(Color.YELLOW),
+                        start,
+                        start + highlightQuery.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    );
+                    binding.textRecentMessage.setText(spannable);
+                } else {
+                    binding.textRecentMessage.setText(chatMessage.message);
+                }
+            } else {
+                binding.textRecentMessage.setText(chatMessage.message);
+            }
             // Check if the message is an image
             if (isBase64Image(chatMessage.message)) {
                 binding.imageMessagePreview.setVisibility(View.VISIBLE);
                 binding.textRecentMessage.setText("📷 Image");
             } else {
                 binding.imageMessagePreview.setVisibility(View.GONE);
-                binding.textRecentMessage.setText(chatMessage.message);
             }
-
             binding.getRoot().setOnClickListener(v -> {
                 User user = new User();
                 user.id = chatMessage.conversionId;
