@@ -315,7 +315,7 @@ public class MessagingService extends FirebaseMessagingService {
 
         // Build the notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.mipmap.ic_rillchat_upb_foreground)
+                .setSmallIcon(R.mipmap.ic_rillchat_upb_fixed_foreground)
                 .setContentTitle(user.name)
                 .setContentText(messageText)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(messageText))

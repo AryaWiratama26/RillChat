@@ -2,6 +2,8 @@ package com.example.rillchat.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
@@ -26,6 +28,8 @@ public class UsersActivity extends BaseActivity implements UserListener {
 
     private ActivityUsersBinding binding;
     private PreferenceManager preferenceManager;
+    private List<User> allUsers;
+    private UsersAdapter usersAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,7 @@ public class UsersActivity extends BaseActivity implements UserListener {
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
         preferenceManager = new PreferenceManager(getApplicationContext());
+        allUsers = new ArrayList<>();
         setListeners();
         getUsers();
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -45,6 +50,36 @@ public class UsersActivity extends BaseActivity implements UserListener {
 
     private void setListeners() {
         binding.imageBack.setOnClickListener(v -> onBackPressed());
+        binding.editTextSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterUsers(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    private void filterUsers(String searchQuery) {
+        List<User> filteredUsers = new ArrayList<>();
+        for (User user : allUsers) {
+            if (user.name.toLowerCase().contains(searchQuery.toLowerCase())) {
+                filteredUsers.add(user);
+            }
+        }
+        if (filteredUsers.isEmpty()) {
+            binding.textErrorMessage.setText(String.format("%s", "No matching users found"));
+            binding.textErrorMessage.setVisibility(View.VISIBLE);
+            binding.usersRecyclerView.setVisibility(View.GONE);
+        } else {
+            binding.textErrorMessage.setVisibility(View.GONE);
+            binding.usersRecyclerView.setVisibility(View.VISIBLE);
+            usersAdapter.setUsers(filteredUsers, searchQuery);
+        }
     }
 
     private void getUsers() {
@@ -56,7 +91,7 @@ public class UsersActivity extends BaseActivity implements UserListener {
                     loading(false);
                     String currentUserId = preferenceManager.getString(Constants.KEY_USER_ID);
                     if(task.isSuccessful() && task.getResult() != null) {
-                        List<User> users = new ArrayList<>();
+                        allUsers.clear();
                         for (QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
                             if(currentUserId.equals(queryDocumentSnapshot.getId())) {
                                 continue;
@@ -67,10 +102,10 @@ public class UsersActivity extends BaseActivity implements UserListener {
                             user.image = queryDocumentSnapshot.getString(Constants.KEY_IMAGE);
                             user.token = queryDocumentSnapshot.getString(Constants.KEY_FCM_TOKEN);
                             user.id = queryDocumentSnapshot.getId();
-                            users.add(user);
+                            allUsers.add(user);
                         }
-                        if(!users.isEmpty()) {
-                            UsersAdapter usersAdapter = new UsersAdapter(users, this);
+                        if(!allUsers.isEmpty()) {
+                            usersAdapter = new UsersAdapter(allUsers, this);
                             binding.usersRecyclerView.setAdapter(usersAdapter);
                             binding.usersRecyclerView.setVisibility(View.VISIBLE);
                         }else {

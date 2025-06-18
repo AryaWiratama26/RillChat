@@ -1,8 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.RillChat" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/primary_dark</item>
-        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/primary_dark</item>
+        <item name="colorPrimary">@color/biru_tua_upb</item>
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/biru_tua_upb</item>
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
     </style>

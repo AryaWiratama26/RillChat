@@ -29,6 +29,7 @@ googleGmsGoogleServices = "4.4.2"
 firebaseFirestore = "25.1.2"
 multidex = "2.0.1"
 preference = "1.2.1"
+coreAnimation = "1.0.0"
 
 [libraries]
 converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "converterScalars" }
@@ -58,6 +59,7 @@ firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 multidex = { module = "androidx.multidex:multidex", version = "2.0.1" }
 preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
+core-animation = { group = "androidx.core", name = "core-animation", version.ref = "coreAnimation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

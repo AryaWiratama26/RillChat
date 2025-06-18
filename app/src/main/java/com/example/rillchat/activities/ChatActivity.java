@@ -99,9 +99,9 @@ public class ChatActivity extends BaseActivity {
         
         // Set status bar color to match header
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark, getTheme()));
+            getWindow().setStatusBarColor(getResources().getColor(R.color.biru_tua_upb, getTheme()));
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark));
+            getWindow().setStatusBarColor(getResources().getColor(R.color.biru_tua_upb));
         }
         
         // Set up immersive mode
@@ -562,9 +562,9 @@ public class ChatActivity extends BaseActivity {
             
             // Ensure status bar color is correct
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark, getTheme()));
+                getWindow().setStatusBarColor(getResources().getColor(R.color.biru_tua_upb, getTheme()));
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                getWindow().setStatusBarColor(getResources().getColor(R.color.primary_dark));
+                getWindow().setStatusBarColor(getResources().getColor(R.color.biru_tua_upb));
             }
         }
     }

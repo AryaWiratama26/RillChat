@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.preference)
+    implementation(libs.core.animation)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -90,4 +91,7 @@ dependencies {
 
     // Notification API (One Signal)
     implementation(libs.onesignal)
+
+    // Core - Animation
+    implementation(libs.core.animation)
 }

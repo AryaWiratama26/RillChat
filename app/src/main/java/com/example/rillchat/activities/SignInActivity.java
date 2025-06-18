@@ -4,26 +4,36 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
+import android.animation.ObjectAnimator;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import com.example.rillchat.utilities.PreferenceManager;
-import com.example.rillchat.utilities.OneSignalNotificationHelper;
 
 import com.example.rillchat.R;
+import com.example.rillchat.databinding.ActivitySplashSignInBinding;
 import com.example.rillchat.databinding.ActivitySignInBinding;
 import com.example.rillchat.utilities.Constants;
+import com.example.rillchat.utilities.PreferenceManager;
+import com.example.rillchat.utilities.OneSignalNotificationHelper;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SignInActivity extends AppCompatActivity {
 
-    private ActivitySignInBinding binding;
+    private ActivitySplashSignInBinding binding;
+    private ActivitySignInBinding signInBinding;
     private PreferenceManager preferenceManager;
+    private BottomSheetBehavior<View> bottomSheetBehavior;
+    private ImageView logoImageView;
+    private View swipeUpContainer;
+    private ObjectAnimator blinkAnimator;
+    private boolean isBottomSheetExpanded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,22 +44,106 @@ public class SignInActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-        binding = ActivitySignInBinding.inflate(getLayoutInflater());
-        EdgeToEdge.enable(this);
+        binding = ActivitySplashSignInBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        
+        // Initialize views
+        logoImageView = binding.logoImage;
+        swipeUpContainer = binding.swipeUpContainer;
+        
+        // Get the included layout
+        View bottomSheetView = binding.bottomSheet.getRoot();
+        signInBinding = ActivitySignInBinding.bind(bottomSheetView);
+        
+        setupBottomSheet();
+        setupBlinkAnimation();
         setListeners();
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+    }
+
+    private void setupBlinkAnimation() {
+        blinkAnimator = ObjectAnimator.ofFloat(swipeUpContainer, "alpha", 1f, 0.3f);
+        blinkAnimator.setDuration(1000);
+        blinkAnimator.setRepeatCount(ObjectAnimator.INFINITE);
+        blinkAnimator.setRepeatMode(ObjectAnimator.REVERSE);
+        startBlinkAnimation();
+    }
+
+    private void startBlinkAnimation() {
+        if (!isBottomSheetExpanded) {
+            blinkAnimator.start();
+        }
+    }
+
+    private void stopBlinkAnimation() {
+        blinkAnimator.cancel();
+    }
+
+    private void setupBottomSheet() {
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet.getRoot());
+        
+        // Configure the bottom sheet behavior
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        bottomSheetBehavior.setHideable(false);
+        bottomSheetBehavior.setPeekHeight(100); // Set a fixed peek height for now
+        bottomSheetBehavior.setDraggable(true);
+        bottomSheetBehavior.setFitToContents(true);
+        bottomSheetBehavior.setSkipCollapsed(false);
+        
+        // Set the maximum height to full screen
+        binding.bottomSheet.getRoot().post(() -> {
+            int windowHeight = getWindow().getDecorView().getHeight();
+            bottomSheetBehavior.setMaxHeight(windowHeight);
+        });
+
+        // Add callback to handle state changes and animations
+        bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(View bottomSheet, int newState) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    bottomSheet.setTranslationY(0);
+                    isBottomSheetExpanded = true;
+                    stopBlinkAnimation();
+                } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    isBottomSheetExpanded = false;
+                    swipeUpContainer.setAlpha(1f);
+                    startBlinkAnimation();
+                }
+            }
+
+            @Override
+            public void onSlide(View bottomSheet, float slideOffset) {
+                // Animate logo scale based on slide offset
+                float scale = 1.0f - (slideOffset * 0.5f);
+                logoImageView.setScaleX(scale);
+                logoImageView.setScaleY(scale);
+                
+                // Adjust logo vertical position
+                float translationY = -slideOffset * 100;
+                logoImageView.setTranslationY(translationY);
+
+                // Animate swipe up container
+                if (slideOffset > 0) {
+                    stopBlinkAnimation();
+                    // Follow bottom sheet movement and fade out
+                    float containerTranslationY = slideOffset * 100;
+                    float containerAlpha = 1.0f - (slideOffset * 2f); // Fade out faster
+                    swipeUpContainer.setTranslationY(containerTranslationY);
+                    swipeUpContainer.setAlpha(Math.max(0, containerAlpha));
+                } else {
+                    // Reset translation when collapsed
+                    swipeUpContainer.setTranslationY(0);
+                    swipeUpContainer.setAlpha(1f);
+                    startBlinkAnimation();
+                }
+            }
         });
     }
 
     private void setListeners() {
-        binding.textCreateNewAccount.setOnClickListener(v ->
+        signInBinding.textCreateNewAccount.setOnClickListener(v ->
                 startActivity(new Intent(getApplicationContext(), SignUpActivity.class)));
 
-        binding.buttonSignIn.setOnClickListener(v -> {
+        signInBinding.buttonSignIn.setOnClickListener(v -> {
             if (isValidSignInDetails()) {
                 signIn();
             }
@@ -58,8 +152,8 @@ public class SignInActivity extends AppCompatActivity {
 
     private void signIn() {
         loading(true);
-        String email = binding.inputEmail.getText().toString().trim();
-        String password = binding.inputPassword.getText().toString();
+        String email = signInBinding.inputEmail.getText().toString().trim();
+        String password = signInBinding.inputPassword.getText().toString();
         
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         database.collection(Constants.KEY_COLLECTION_USERS)
@@ -67,12 +161,10 @@ public class SignInActivity extends AppCompatActivity {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null && task.getResult().getDocuments().size() > 0) {
-                        // Email exists, now verify password
                         DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
                         String storedPassword = documentSnapshot.getString(Constants.KEY_PASSWORD);
                         
                         if (storedPassword != null && storedPassword.equals(password)) {
-                            // Password matches
                             String userId = documentSnapshot.getId();
                             preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
                             preferenceManager.putString(Constants.KEY_USER_ID, userId);
@@ -86,12 +178,10 @@ public class SignInActivity extends AppCompatActivity {
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
                         } else {
-                            // Password doesn't match
                             loading(false);
                             showToast("Invalid password");
                         }
                     } else {
-                        // Email doesn't exist
                         loading(false);
                         showToast("No account found with this email");
                     }
@@ -104,11 +194,11 @@ public class SignInActivity extends AppCompatActivity {
 
     private void loading(Boolean isLoading) {
         if (isLoading) {
-            binding.buttonSignIn.setVisibility(View.INVISIBLE);
-            binding.progressBar.setVisibility(View.VISIBLE);
+            signInBinding.buttonSignIn.setVisibility(View.INVISIBLE);
+            signInBinding.progressBar.setVisibility(View.VISIBLE);
         } else {
-            binding.buttonSignIn.setVisibility(View.VISIBLE);
-            binding.progressBar.setVisibility(View.INVISIBLE);
+            signInBinding.buttonSignIn.setVisibility(View.VISIBLE);
+            signInBinding.progressBar.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -117,8 +207,8 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private Boolean isValidSignInDetails() {
-        String email = binding.inputEmail.getText().toString().trim();
-        String password = binding.inputPassword.getText().toString().trim();
+        String email = signInBinding.inputEmail.getText().toString().trim();
+        String password = signInBinding.inputPassword.getText().toString().trim();
         
         if (email.isEmpty()) {
             showToast("Enter Email");
@@ -134,6 +224,14 @@ public class SignInActivity extends AppCompatActivity {
             return false;
         } else {
             return true;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (blinkAnimator != null) {
+            blinkAnimator.cancel();
         }
     }
 }
