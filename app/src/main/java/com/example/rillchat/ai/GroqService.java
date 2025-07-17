@@ -9,7 +9,7 @@ public interface GroqService {
 
     @Headers({
  
-            "Authorization: Bearer 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",
+            "Authorization: Bearer YOUR_GROQ_APIKEY",
             "Content-Type: application/json"
     })
     @POST("chat/completions")
