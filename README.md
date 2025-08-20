@@ -1,4 +1,4 @@
-# 📱 RillChat  
+# RillChat  
 _Aplikasi Chat Mahasiswa dengan Asisten AI_
 
 <p align="center">
@@ -22,7 +22,7 @@ _Aplikasi Chat Mahasiswa dengan Asisten AI_
 
 ---
 
-## 📌 Deskripsi
+## Deskripsi
 
 **RillChat** adalah aplikasi mobile chatting yang dirancang khusus untuk civitas akademika **Universitas Pelita Bangsa**.  
 Dengan integrasi asisten AI (Gemini), pengguna dapat berkomunikasi lebih cerdas dan cepat — baik dengan teman kuliah maupun untuk bertanya seputar informasi kampus.
@@ -31,17 +31,17 @@ Dengan integrasi asisten AI (Gemini), pengguna dapat berkomunikasi lebih cerdas 
 
 ---
 
-## ✨ Fitur Utama
+## Fitur Utama
 
-- 💬 Chatting real-time antar mahasiswa
-- 🤖 Asisten AI berbasis Gemini untuk bantu tanya-jawab kampus
-- 🔐 Sistem login & registrasi dengan Firebase Authentication
-- ☁️ Database cloud menggunakan Firebase Realtime DB
-- 🎨 Desain UI/UX yang modern dan ramah pengguna
+- Chatting real-time antar mahasiswa
+- Asisten AI berbasis Gemini untuk bantu tanya-jawab kampus
+- Sistem login & registrasi dengan Firebase Authentication
+- Database cloud menggunakan Firebase Realtime DB
+- Desain UI/UX yang modern dan ramah pengguna
 
 ---
 
-## 🧪 Teknologi yang Digunakan
+## Teknologi yang Digunakan
 
 | Kategori       | Teknologi                          |
 |----------------|-------------------------------------|
@@ -52,7 +52,7 @@ Dengan integrasi asisten AI (Gemini), pengguna dapat berkomunikasi lebih cerdas 
 
 ---
 
-## 📸 Tampilan Aplikasi
+## Tampilan Aplikasi
 
 <p align="center">
   <img src="/ss/r-new-splash.jpg" width="180" alt="Splash Screen">
@@ -64,22 +64,22 @@ Dengan integrasi asisten AI (Gemini), pengguna dapat berkomunikasi lebih cerdas 
   <img src="/ss/r-new-settings.jpg" width="180" alt="Settings">
 </p>
 
-## 📖 Mockup 
+## Mockup 
 <p align="center">
     <img src="/ss/really-new-mockup.png" alt="RIllChat Mockup">
 <p>
 
-## 📖 StoryBoard 
+## StoryBoard 
 <p align="center">
     <img src="/ss/really-new-story.png" alt="RIllChat StoryBoard">
 <p>
 
-## 📖 UI 
+## UI 
 <p align="center">
     <img src="/ss/really-new-ui.png" alt="RIllChat UI">
 <p>
 
-## 📖 UX
+## UX
 <p align="center">
     <img src="/ss/really-new-ux.png" alt="RIllChat UX">
 <p>
@@ -88,7 +88,7 @@ Dengan integrasi asisten AI (Gemini), pengguna dapat berkomunikasi lebih cerdas 
 
 ---
 
-## 👨‍💻 Tim Pengembang
+## Tim Pengembang
 
 | Nama                         | NIM           | Role |
 |------------------------------|---------------|----- |
